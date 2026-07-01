@@ -31,6 +31,7 @@ public abstract class BaseEntity {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
