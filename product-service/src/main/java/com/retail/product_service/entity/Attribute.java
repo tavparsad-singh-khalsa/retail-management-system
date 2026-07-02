@@ -17,6 +17,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // import java.util.ArrayList;
 // import java.util.List;
 
@@ -49,8 +52,7 @@ public class Attribute extends BaseEntity {
     @Column(nullable = false)
     private Boolean required = false;
 
-    // TODO: Uncomment once AttributeValue entity is created
-    // @OneToMany(mappedBy = "attribute", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-    // @Builder.Default
-    // private List<AttributeValue> attributeValues = new ArrayList<>();
+     @OneToMany(mappedBy = "attribute", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+     @Builder.Default
+     private List<AttributeValue> attributeValues = new ArrayList<>();
 }

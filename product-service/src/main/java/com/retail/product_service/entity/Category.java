@@ -48,7 +48,10 @@ public class Category extends BaseEntity {
     @Builder.Default
     private List<Category> childCategories = new ArrayList<>();
 
-    // TODO: Uncomment once Product entity is created
-    // @OneToMany(mappedBy = "category")
-    // private List<Product> products;
+    @OneToMany(
+            mappedBy = "category",
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<Product> products = new ArrayList<>();
 }

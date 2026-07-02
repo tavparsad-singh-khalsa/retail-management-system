@@ -1,11 +1,6 @@
 package com.retail.product_service.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // import java.util.ArrayList;
 // import java.util.List;
@@ -52,18 +50,16 @@ public class Product extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @NotNull(message = "Category is mandatory")
+    @NotNull(message = "Brand is mandatory")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    // TODO: Uncomment once ProductVariant entity is created
-    // @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-    // @Builder.Default
-    // private List<ProductVariant> variants = new ArrayList<>();
+     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+     @Builder.Default
+     private List<ProductVariant> variants = new ArrayList<>();
 
-    // TODO: Uncomment once ProductImage entity is created
-    // @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-    // @Builder.Default
-    // private List<ProductImage> images = new ArrayList<>();
+     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+     @Builder.Default
+     private List<ProductImage> images = new ArrayList<>();
 }

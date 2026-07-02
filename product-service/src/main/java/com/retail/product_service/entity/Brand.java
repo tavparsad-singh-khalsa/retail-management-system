@@ -35,7 +35,6 @@ public class Brand extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String description;
 
-    // TODO: Uncomment once Product entity is created
-    // @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
-    // private List<Product> products = new ArrayList<>();
+     @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
+     private List<Product> products = new ArrayList<>();
 }
