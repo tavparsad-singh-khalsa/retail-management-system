@@ -26,19 +26,24 @@ import lombok.Setter;
                 @UniqueConstraint(
                         columnNames = {
                                 "product_variant_id",
-                                "attribute_value_id"
+                                "attribute_id"
                         }
                 )
         }
 )
 public class VariantAttribute extends BaseEntity {
 
-    @NotNull(message = "Product variant reference is mandatory")
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_variant_id", nullable = false)
     private ProductVariant productVariant;
 
-    @NotNull(message = "Attribute value reference is mandatory")
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attribute_id", nullable = false)
+    private Attribute attribute;
+
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attribute_value_id", nullable = false)
     private AttributeValue attributeValue;

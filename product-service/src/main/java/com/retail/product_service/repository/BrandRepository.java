@@ -10,8 +10,10 @@ public interface BrandRepository extends JpaRepository<Brand , Long> {
 
     Optional<Brand> findByName(String name);
 
-    boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
 
     List<Brand> findByNameContainingIgnoreCase(String name);
+
+    List<Brand> findByIsActiveTrue();
 
 }

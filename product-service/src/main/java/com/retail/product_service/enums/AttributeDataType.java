@@ -2,7 +2,7 @@ package com.retail.product_service.enums;
 
 public enum AttributeDataType {
     TEXT,
-    NUMBER,
+    INTEGER,  // ⭐ Updated from NUMBER for better clarity
     DECIMAL,
     BOOLEAN,
     DATE,

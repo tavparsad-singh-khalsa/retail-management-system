@@ -33,7 +33,11 @@ import java.util.List;
 public class Attribute extends BaseEntity {
 
     @NotBlank(message = "Attribute name is mandatory")
-    @Size(max = 100, message = "Attribute name must be less than 100 characters")
+    @Size(
+            min = 2,
+            max = 100,
+            message = "Attribute name must be between 2 and 100 characters"
+    )
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 

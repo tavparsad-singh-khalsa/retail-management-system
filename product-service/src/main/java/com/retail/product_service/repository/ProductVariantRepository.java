@@ -20,4 +20,6 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant ,
     List<ProductVariant> findByProduct(Product product);
 
     List<ProductVariant> findByIsActiveTrue();
+
+    List<ProductVariant> findByProductAndIsActiveTrue(Product product);
 }

@@ -1,17 +1,39 @@
 package com.retail.product_service.repository;
 
-import com.retail.product_service.entity.Product;
 import com.retail.product_service.entity.ProductImage;
 import com.retail.product_service.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface ProductImageRepository extends JpaRepository<ProductImage , Long> {
-
-    List<ProductImage> findByProduct(Product product);
+@Repository
+public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
 
     List<ProductImage> findByProductVariant(ProductVariant productVariant);
 
-    List<ProductImage> findByProductOrderByDisplayOrderAsc(Product product);
+    List<ProductImage> findByProductVariantAndIsActiveTrue(ProductVariant productVariant);
+
+    List<ProductImage> findByProductVariantAndIsActiveTrueOrderByDisplayOrderAsc(
+            ProductVariant productVariant
+    );
+
+    boolean existsByProductVariantAndIsPrimaryTrue(ProductVariant productVariant);
+
+    boolean existsByProductVariantAndIsPrimaryTrueAndIsActiveTrue(
+            ProductVariant productVariant
+    );
+
+    Optional<ProductImage> findByProductVariantAndIsPrimaryTrue(
+            ProductVariant productVariant
+    );
+
+    Optional<ProductImage> findByProductVariantAndIsPrimaryTrueAndIsActiveTrue(
+            ProductVariant productVariant
+    );
+
+    List<ProductImage> findByProductVariantOrderByDisplayOrderAsc(
+            ProductVariant productVariant
+    );
 }

@@ -15,4 +15,10 @@ public interface CategoryRepository extends JpaRepository<Category , Long> {
     List<Category> findByParentCategory(Category parentCategory);
 
     List<Category> findByNameContainingIgnoreCase(String name);
+
+    boolean existsByNameIgnoreCase(String name);
+
+    boolean existsByParentCategoryAndIsActiveTrue(Category parent);
+
+    boolean existsByParentCategory(Category parent);
 }

@@ -10,7 +10,7 @@ public interface AttributeRepository extends JpaRepository<Attribute , Long>{
 
     Optional<Attribute> findByName(String name);
 
-    boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
 
     List<Attribute> findByNameContainingIgnoreCase(String name);
 }
