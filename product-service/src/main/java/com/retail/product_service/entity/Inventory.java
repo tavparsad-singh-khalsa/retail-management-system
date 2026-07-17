@@ -51,4 +51,8 @@ public class Inventory extends BaseEntity {
     @Column(name = "reorder_level", nullable = false)
     @Builder.Default
     private Integer reorderLevel = 0;
+
+    public Integer getAvailableStock() {
+        return currentStock - reservedStock;
+    }
 }
