@@ -14,9 +14,11 @@ public interface VariantAttributeService {
 
     VariantAttributeResponse getVariantAttributeById(Long id);
 
-    List<VariantAttributeResponse> getAttributesByVariant(Long productVariantId);
+    List<VariantAttributeResponse> getVariantAttributesByVariantId(Long productVariantId);
 
     void activateVariantAttribute(Long id);
 
     void deactivateVariantAttribute(Long id);
+
+    List<VariantAttributeResponse> getAllVariantAttributes();
 }

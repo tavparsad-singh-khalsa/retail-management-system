@@ -35,6 +35,7 @@ public class Brand extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String description;
 
+     @Builder.Default
      @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
      private List<Product> products = new ArrayList<>();
 }

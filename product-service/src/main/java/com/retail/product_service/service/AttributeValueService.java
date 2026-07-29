@@ -17,11 +17,13 @@ public interface AttributeValueService {
             UpdateAttributeValueRequest request
     );
 
+    List<AttributeValueResponse> getAttributeValuesByAttributeId(Long attributeId);
+
+    List<AttributeValueResponse> getActiveAttributeValuesByAttributeId(Long attributeId);
+
     AttributeValueResponse getAttributeValueById(Long id);
 
     List<AttributeValueResponse> getAllAttributeValues();
-
-    List<AttributeValueResponse> getValuesByAttribute(Long attributeId);
 
     void activateAttributeValue(Long id);
 

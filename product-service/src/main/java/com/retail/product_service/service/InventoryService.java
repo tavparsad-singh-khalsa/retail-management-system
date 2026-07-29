@@ -18,4 +18,9 @@ public interface InventoryService {
     void activateInventory(Long id);
 
     void deactivateInventory(Long id);
+
+    InventoryResponse getInventoryById(Long id);
+
+    List<InventoryResponse> getOutOfStockInventories();
+
 }

@@ -13,6 +13,9 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     Optional<Inventory> findByProductVariant(ProductVariant productVariant);
 
+    // ⭐ Added this method to fix the compilation error in the Service layer
+    Optional<Inventory> findByProductVariantId(Long productVariantId);
+
     List<Inventory> findByCurrentStockLessThanEqual(Integer stock);
 
     List<Inventory> findByCurrentStock(Integer currentStock);

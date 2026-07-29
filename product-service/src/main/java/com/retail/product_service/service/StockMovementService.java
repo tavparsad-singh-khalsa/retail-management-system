@@ -16,4 +16,6 @@ public interface StockMovementService {
 
     List<StockMovementResponse> getMovementHistoryByType(Long inventoryId, MovementType movementType);
 
+    List<StockMovementResponse> getMovementHistoryByVariant(Long variantId);
+
 }

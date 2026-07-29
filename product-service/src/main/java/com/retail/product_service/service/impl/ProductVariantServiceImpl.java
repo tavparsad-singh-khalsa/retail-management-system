@@ -155,6 +155,28 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productVariantRepository.save(variant);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductVariantResponse> getAllVariants() {
+        return productVariantRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductVariantResponse getVariantByBarcode(String barcode) {
+
+        ProductVariant variant = productVariantRepository
+                .findByBarcode(barcode)
+                .orElseThrow(() ->
+                        new ProductVariantNotFoundException(
+                                "Variant not found with barcode: " + barcode));
+
+        return mapToResponse(variant);
+    }
+
     // ==========================================
     // PRIVATE HELPER METHODS
     // ==========================================

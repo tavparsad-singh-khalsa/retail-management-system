@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -55,4 +57,8 @@ public class ProductVariant extends BaseEntity {
 
     @OneToOne(mappedBy = "productVariant", fetch = FetchType.LAZY)
     private Inventory inventory;
+
+    @OneToMany(mappedBy = "productVariant", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ProductImage> images = new ArrayList<>();
 }

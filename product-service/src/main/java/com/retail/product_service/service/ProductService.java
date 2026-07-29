@@ -14,8 +14,6 @@ public interface ProductService {
 
     ProductResponse getProductById(Long id);
 
-    ProductResponse getProductByProductCode(String productCode);
-
     List<ProductResponse> getAllProducts();
 
     List<ProductResponse> getAllActiveProducts();
@@ -23,4 +21,7 @@ public interface ProductService {
     void activateProduct(Long id);
 
     void deactivateProduct(Long id);
+
+    // ⭐ Simplified to a single, clean method signature
+    ProductResponse getProductByCode(String productCode);
 }

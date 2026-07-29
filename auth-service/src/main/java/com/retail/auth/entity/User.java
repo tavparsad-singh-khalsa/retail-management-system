@@ -37,15 +37,19 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isActive = true;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean forcePasswordChange = true;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer failedLoginAttempts = 0;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean accountLocked = false;
 

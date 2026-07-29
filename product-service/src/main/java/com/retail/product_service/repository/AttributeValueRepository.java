@@ -26,4 +26,6 @@ public interface AttributeValueRepository extends JpaRepository<AttributeValue ,
             Attribute attribute,
             String value
     );
+
+    List<AttributeValue> findByAttributeId(Long attributeId);
 }

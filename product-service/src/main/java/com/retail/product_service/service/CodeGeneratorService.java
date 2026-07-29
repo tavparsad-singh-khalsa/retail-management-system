@@ -5,3 +5,4 @@ public interface CodeGeneratorService {
     String generateSku(Long variantId);
     String generateBarcode(Long variantId);
 }
+

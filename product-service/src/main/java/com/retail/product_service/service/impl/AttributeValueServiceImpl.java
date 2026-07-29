@@ -74,6 +74,23 @@ public class AttributeValueServiceImpl implements AttributeValueService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<AttributeValueResponse> getAttributeValuesByAttributeId(Long attributeId) {
+        return attributeValueRepository.findByAttributeId(attributeId).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public List<AttributeValueResponse> getActiveAttributeValuesByAttributeId(Long attributeId) {
+        Attribute attribute = findActiveAttributeOrThrow(attributeId);
+
+        return attributeValueRepository.findByAttributeAndIsActiveTrue(attribute).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public AttributeValueResponse getAttributeValueById(Long id) {
         return mapToResponse(findAttributeValueOrThrow(id));
     }
@@ -82,16 +99,6 @@ public class AttributeValueServiceImpl implements AttributeValueService {
     @Transactional(readOnly = true)
     public List<AttributeValueResponse> getAllAttributeValues() {
         return attributeValueRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<AttributeValueResponse> getValuesByAttribute(Long attributeId) {
-        Attribute attribute = findActiveAttributeOrThrow(attributeId);
-
-        return attributeValueRepository.findByAttributeAndIsActiveTrue(attribute).stream()
                 .map(this::mapToResponse)
                 .toList();
     }

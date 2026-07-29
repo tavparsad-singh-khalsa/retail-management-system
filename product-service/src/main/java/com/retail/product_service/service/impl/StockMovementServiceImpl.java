@@ -85,6 +85,18 @@ public class StockMovementServiceImpl implements StockMovementService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<StockMovementResponse> getMovementHistoryByVariant(Long variantId) {
+        // 1. Resolve the Inventory via the Variant ID
+        Inventory inventory = inventoryRepository.findByProductVariantId(variantId)
+                .orElseThrow(() -> new InventoryNotFoundException("Inventory not found for variant ID: " + variantId));
+
+        // 2. Fetch and map the movement history
+        return stockMovementRepository.findByInventoryOrderByCreatedAtDesc(inventory).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
     // ==========================================
     // PRIVATE HELPER METHODS
     // ==========================================

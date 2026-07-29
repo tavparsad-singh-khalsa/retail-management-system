@@ -36,4 +36,10 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
     List<ProductImage> findByProductVariantOrderByDisplayOrderAsc(
             ProductVariant productVariant
     );
+
+    // ⭐ New: Enforces active only and orders by display order for a base product
+    List<ProductImage> findByProductVariant_ProductIdAndIsActiveTrueOrderByDisplayOrderAsc(Long productId);
+
+    // ⭐ New: Enforces active only and orders by display order for a specific variant
+    List<ProductImage> findByProductVariant_IdAndIsActiveTrueOrderByDisplayOrderAsc(Long variantId);
 }

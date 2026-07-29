@@ -136,7 +136,8 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         if (categoryRepository.existsByParentCategoryAndIsActiveTrue(category)) {
-            throw new CategoryHierarchyException("Cannot deactivate category: It still has active child categories.");
+            throw new CategoryHierarchyException(
+                    "Cannot deactivate category: It still has active child categories.");
         }
 
         category.setIsActive(false);

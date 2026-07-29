@@ -25,9 +25,8 @@ import java.util.List;
 @Table(name = "products")
 public class Product extends BaseEntity {
 
-    @NotBlank(message = "Product code is mandatory")
     // updatable = false ensures Hibernate will never include this in an UPDATE statement
-    @Column(nullable = false, unique = true, updatable = false, length = 50)
+    @Column(unique = true, updatable = false, length = 50)
     private String productCode;
 
     @NotBlank(message = "Product name is mandatory")
@@ -58,8 +57,4 @@ public class Product extends BaseEntity {
      @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
      @Builder.Default
      private List<ProductVariant> variants = new ArrayList<>();
-
-     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
-     @Builder.Default
-     private List<ProductImage> images = new ArrayList<>();
 }

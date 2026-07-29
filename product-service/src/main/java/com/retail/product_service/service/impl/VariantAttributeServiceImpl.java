@@ -78,7 +78,7 @@ public class VariantAttributeServiceImpl implements VariantAttributeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VariantAttributeResponse> getAttributesByVariant(Long productVariantId) {
+    public List<VariantAttributeResponse> getVariantAttributesByVariantId(Long productVariantId) {
         // ⭐ IMPROVEMENT: Refactored to reuse getActiveVariantOrThrow
         ProductVariant variant = getActiveVariantOrThrow(productVariantId);
 
@@ -113,6 +113,14 @@ public class VariantAttributeServiceImpl implements VariantAttributeService {
 
         variantAttribute.setIsActive(false);
         variantAttributeRepository.save(variantAttribute);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VariantAttributeResponse> getAllVariantAttributes() {
+        return variantAttributeRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     // ==========================================

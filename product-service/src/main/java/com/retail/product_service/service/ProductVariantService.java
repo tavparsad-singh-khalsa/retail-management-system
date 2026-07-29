@@ -21,4 +21,8 @@ public interface ProductVariantService {
     void activateVariant(Long id);
 
     void deactivateVariant(Long id);
+
+    List<ProductVariantResponse> getAllVariants();
+
+    ProductVariantResponse getVariantByBarcode(String barcode);
 }

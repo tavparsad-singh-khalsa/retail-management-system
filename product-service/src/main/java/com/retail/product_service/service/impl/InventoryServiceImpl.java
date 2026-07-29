@@ -106,6 +106,23 @@ public class InventoryServiceImpl implements InventoryService {
         inventoryRepository.save(inventory);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public InventoryResponse getInventoryById(Long id) {
+        // Reusing our existing private helper
+        Inventory inventory = getInventoryOrThrow(id);
+        return mapToResponse(inventory);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<InventoryResponse> getOutOfStockInventories() {
+        // Reusing the active-only custom repository method we created earlier for 0 stock
+        return inventoryRepository.findByIsActiveTrueAndCurrentStockLessThanEqual(0).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     // ==========================================
     // PRIVATE HELPER METHODS
     // ==========================================
