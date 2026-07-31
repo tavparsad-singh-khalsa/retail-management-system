@@ -9,12 +9,14 @@ CREATE TABLE invoices (
   discount_amount numeric(18,2) NOT NULL,
   total numeric(18,2) NOT NULL,
   currency varchar(3) NOT NULL DEFAULT 'INR',
+  invoice_status varchar(30) NOT NULL DEFAULT 'GENERATED',
   payment_method varchar(100),
   payment_status varchar(50),
   transaction_reference varchar(200),
   paid_amount numeric(18,2),
   paid_at timestamp,
-  created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE invoice_items (

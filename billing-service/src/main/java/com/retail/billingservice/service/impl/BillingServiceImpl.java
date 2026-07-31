@@ -55,6 +55,7 @@ public class BillingServiceImpl implements BillingService {
                 .taxAmount(sale.getTaxAmount())
                 .discountAmount(sale.getDiscountAmount())
                 .total(sale.getTotal())
+                .currency("INR")
                 .invoiceStatus(InvoiceStatus.GENERATED)
                 .build();
 

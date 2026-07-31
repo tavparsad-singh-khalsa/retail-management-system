@@ -51,6 +51,7 @@ public class Invoice {
     @Column(nullable = false, length = 3)
     private String currency;
 
+    @Column(nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
     private InvoiceStatus invoiceStatus;
 
@@ -64,6 +65,7 @@ public class Invoice {
 
     @Column(precision = 15, scale = 2)
     private BigDecimal paidAmount;
+
     private LocalDateTime paidAt;
 
     @Builder.Default
@@ -73,6 +75,7 @@ public class Invoice {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist
