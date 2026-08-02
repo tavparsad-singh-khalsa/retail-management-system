@@ -19,6 +19,7 @@ public interface SalesClient {
     class SaleDto {
         private Long id;
         private Long customerId;
+        private String saleStatus;
         private BigDecimal subtotal;
         private BigDecimal taxAmount;
         private BigDecimal discountAmount;

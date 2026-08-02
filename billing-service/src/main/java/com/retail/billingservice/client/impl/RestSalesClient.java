@@ -2,6 +2,7 @@ package com.retail.billingservice.client.impl;
 
 import com.retail.billingservice.client.SalesClient;
 import com.retail.billingservice.exception.SaleNotFoundException;
+import com.retail.billingservice.exception.SalesServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
@@ -30,7 +31,7 @@ public class RestSalesClient implements SalesClient {
                     })
                     .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
                         log.error("Sales Service returned error fetching sale {}. Status: {}", saleId, res.getStatusCode());
-                        throw new RuntimeException("Sales Service error: " + res.getStatusCode());
+                        throw new SalesServiceException("Sales Service error: " + res.getStatusCode());
                     })
                     .body(SaleDto.class);
             
@@ -46,7 +47,7 @@ public class RestSalesClient implements SalesClient {
                 throw e;
             }
             log.error("Failed to fetch sale {} from Sales Service", saleId, e);
-            throw new RuntimeException("Failed to fetch sale from Sales Service", e);
+            throw new SalesServiceException("Failed to fetch sale from Sales Service", e);
         }
     }
 }

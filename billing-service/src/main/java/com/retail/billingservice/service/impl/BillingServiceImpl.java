@@ -182,9 +182,8 @@ public class BillingServiceImpl implements BillingService {
     }
 
     private boolean isFinalized(SaleDto sale) {
-        // TODO: Check sale status when SaleDto includes it
-        // For now, if sale exists and has items, consider it finalized
-        return sale != null && sale.getItems() != null && !sale.getItems().isEmpty();
+        // Sale is finalized only when status is COMPLETED
+        return sale != null && "COMPLETED".equals(sale.getSaleStatus());
     }
 
 }
