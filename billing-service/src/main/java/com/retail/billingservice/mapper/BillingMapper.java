@@ -1,7 +1,5 @@
 package com.retail.billingservice.mapper;
 
-import com.retail.billingservice.client.SalesClient.SaleDto;
-import com.retail.billingservice.dto.request.CreateInvoiceRequest;
 import com.retail.billingservice.dto.response.InvoiceItemResponse;
 import com.retail.billingservice.dto.response.InvoiceResponse;
 import com.retail.billingservice.entity.Invoice;
