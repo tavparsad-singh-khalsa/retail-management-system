@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resp);
     }
 
-    @ExceptionHandler({InvoiceNotFoundException.class})
+    @ExceptionHandler({InvoiceNotFoundException.class, SaleNotFoundException.class, CustomerNotFoundException.class})
     public ResponseEntity<ApiErrorResponse> handleNotFound(RuntimeException ex, HttpServletRequest request) {
         return build(ex, HttpStatus.NOT_FOUND, request);
     }
@@ -42,6 +42,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({InvoiceAlreadyExistsException.class})
     public ResponseEntity<ApiErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest request) {
         return build(ex, HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler({SaleNotFinalizedException.class})
+    public ResponseEntity<ApiErrorResponse> handleSaleNotFinalized(RuntimeException ex, HttpServletRequest request) {
+        return build(ex, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 
     @ExceptionHandler(Exception.class)

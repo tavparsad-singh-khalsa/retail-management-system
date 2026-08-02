@@ -1,24 +1,27 @@
 package com.retail.billingservice.service.impl;
 
+import com.retail.billingservice.client.CustomerClient;
+import com.retail.billingservice.client.SalesClient;
+import com.retail.billingservice.client.SalesClient.SaleDto;
 import com.retail.billingservice.dto.request.CreateInvoiceRequest;
-import com.retail.billingservice.dto.response.InvoiceItemResponse;
+import com.retail.billingservice.dto.request.MarkPaidRequest;
 import com.retail.billingservice.dto.response.InvoiceResponse;
 import com.retail.billingservice.entity.Invoice;
 import com.retail.billingservice.entity.InvoiceItem;
+import com.retail.billingservice.exception.CustomerNotFoundException;
 import com.retail.billingservice.exception.InvoiceAlreadyExistsException;
 import com.retail.billingservice.exception.InvoiceNotFoundException;
+import com.retail.billingservice.exception.SaleNotFinalizedException;
+import com.retail.billingservice.exception.SaleNotFoundException;
+import com.retail.billingservice.mapper.BillingMapper;
+import com.retail.billingservice.model.InvoiceStatus;
 import com.retail.billingservice.repository.InvoiceRepository;
 import com.retail.billingservice.service.BillingService;
-import com.retail.billingservice.client.SalesClient;
-import com.retail.billingservice.client.SalesClient.SaleDto;
-import com.retail.billingservice.client.CustomerClient;
-import com.retail.billingservice.model.InvoiceStatus;
-import com.retail.billingservice.model.PaymentMethod;
-import com.retail.billingservice.model.PaymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,26 +31,44 @@ public class BillingServiceImpl implements BillingService {
     private final InvoiceRepository invoiceRepository;
     private final SalesClient salesClient;
     private final CustomerClient customerClient;
+    private final BillingMapper billingMapper;
 
     @Override
     @Transactional
     public InvoiceResponse createInvoice(CreateInvoiceRequest request) {
         Long saleId = request.getSaleId();
 
+        // Check if invoice already exists for this sale
         invoiceRepository.findBySaleId(saleId).ifPresent(inv -> {
-            throw new InvoiceAlreadyExistsException("Invoice already exists for sale: " + saleId);
+            throw new InvoiceAlreadyExistsException(
+                    "Invoice already exists for sale ID: " + saleId
+            );
         });
 
+        // Fetch finalized sale from Sales Service
         SaleDto sale = salesClient.getFinalizedSale(saleId);
         if (sale == null) {
-            throw new IllegalArgumentException("Sale not found or not finalized: " + saleId);
+            throw new SaleNotFoundException(
+                    "Sale not found or not finalized: " + saleId
+            );
         }
 
+        // Validate sale is finalized (status check)
+        if (!isFinalized(sale)) {
+            throw new SaleNotFinalizedException(
+                    "Sale is not finalized: " + saleId
+            );
+        }
+
+        // Verify customer exists
         boolean customerExists = customerClient.existsById(sale.getCustomerId());
         if (!customerExists) {
-            throw new IllegalArgumentException("Customer not found: " + sale.getCustomerId());
+            throw new CustomerNotFoundException(
+                    "Customer not found: " + sale.getCustomerId()
+            );
         }
 
+        // Build invoice from sale
         Invoice invoice = Invoice.builder()
                 .saleId(sale.getId())
                 .customerId(sale.getCustomerId())
@@ -59,76 +80,111 @@ public class BillingServiceImpl implements BillingService {
                 .invoiceStatus(InvoiceStatus.GENERATED)
                 .build();
 
-        List<InvoiceItem> items = sale.getItems().stream().map(si -> {
-            InvoiceItem it = InvoiceItem.builder()
-                    .productId(si.getProductId())
-                    .variantId(si.getVariantId())
-                    .sku(si.getSku())
-                    .barcode(si.getBarcode())
-                    .productName(si.getProductName())
-                    .variantName(si.getVariantName())
-                    .quantity(si.getQuantity())
-                    .unitPrice(si.getUnitPrice())
-                    .lineTotal(si.getLineTotal())
-                    .build();
-            it.setInvoice(invoice);
-            return it;
-        }).toList();
+        // Map sale items to invoice items
+        if (sale.getItems() != null && !sale.getItems().isEmpty()) {
+            sale.getItems().forEach(saleItem -> {
+                InvoiceItem item = InvoiceItem.builder()
+                        .productId(saleItem.getProductId())
+                        .variantId(saleItem.getVariantId())
+                        .sku(saleItem.getSku())
+                        .barcode(saleItem.getBarcode())
+                        .productName(saleItem.getProductName())
+                        .variantName(saleItem.getVariantName())
+                        .quantity(saleItem.getQuantity())
+                        .unitPrice(saleItem.getUnitPrice())
+                        .discountAmount(saleItem.getDiscountAmount())
+                        .taxAmount(saleItem.getTaxAmount())
+                        .lineTotal(saleItem.getLineTotal())
+                        .build();
+                invoice.addItem(item);
+            });
+        }
 
-        invoice.setItems(items);
+        // Generate invoice number
+        String invoiceNumber = generateInvoiceNumber();
+        invoice.setInvoiceNumber(invoiceNumber);
 
-        long seq = invoiceRepository.count() + 1;
-        invoice.setInvoiceNumber("INV-" + String.format("%06d", seq));
-
+        // Save invoice and return response
         Invoice saved = invoiceRepository.save(invoice);
-
-        return toResponse(saved);
+        return billingMapper.toInvoiceResponse(saved);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public InvoiceResponse getInvoice(Long id) {
-        Invoice invoice = invoiceRepository.findById(id).orElseThrow(() -> new InvoiceNotFoundException("Invoice not found: " + id));
-        return toResponse(invoice);
+    public InvoiceResponse getInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new InvoiceNotFoundException(
+                        "Invoice not found: " + invoiceId
+                ));
+        return billingMapper.toInvoiceResponse(invoice);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public InvoiceResponse getInvoiceByNumber(String invoiceNumber) {
+        Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber)
+                .orElseThrow(() -> new InvoiceNotFoundException(
+                        "Invoice not found: " + invoiceNumber
+                ));
+        return billingMapper.toInvoiceResponse(invoice);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<InvoiceResponse> getAllInvoices() {
-        return invoiceRepository.findAll().stream().map(this::toResponse).toList();
+        return billingMapper.toInvoiceResponses(invoiceRepository.findAll());
     }
 
-    private InvoiceResponse toResponse(Invoice invoice) {
-        List<InvoiceItemResponse> items = invoice.getItems().stream().map(i -> InvoiceItemResponse.builder()
-                .id(i.getId())
-                .productId(i.getProductId())
-                .sku(i.getSku())
-                .productName(i.getProductName())
-                .variantId(i.getVariantId())
-                .variantName(i.getVariantName())
-                .quantity(i.getQuantity())
-                .unitPrice(i.getUnitPrice())
-                .lineTotal(i.getLineTotal())
-                .build()).toList();
-
-        return InvoiceResponse.builder()
-                .id(invoice.getId())
-                .invoiceNumber(invoice.getInvoiceNumber())
-                .saleId(invoice.getSaleId())
-                .customerId(invoice.getCustomerId())
-                .subtotal(invoice.getSubtotal())
-                .taxAmount(invoice.getTaxAmount())
-                .discountAmount(invoice.getDiscountAmount())
-                .total(invoice.getTotal())
-                .invoiceStatus(invoice.getInvoiceStatus())
-                .paymentMethod(invoice.getPaymentMethod())
-                .paymentStatus(invoice.getPaymentStatus())
-                .transactionReference(invoice.getTransactionReference())
-                .paidAmount(invoice.getPaidAmount())
-                .paidAt(invoice.getPaidAt())
-                .createdAt(invoice.getCreatedAt())
-                .updatedAt(invoice.getUpdatedAt())
-                .items(items)
-                .build();
+    @Override
+    @Transactional(readOnly = true)
+    public List<InvoiceResponse> getInvoicesByCustomer(Long customerId) {
+        return billingMapper.toInvoiceResponses(
+                invoiceRepository.findByCustomerId(customerId)
+        );
     }
+
+    @Override
+    @Transactional
+    public InvoiceResponse markPaid(Long invoiceId, MarkPaidRequest request) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new InvoiceNotFoundException(
+                        "Invoice not found: " + invoiceId
+                ));
+
+        invoice.setPaymentMethod(request.getPaymentMethod());
+        invoice.setTransactionReference(request.getTransactionReference());
+        invoice.setPaidAmount(request.getPaidAmount());
+        invoice.setPaymentStatus(
+                com.retail.billingservice.model.PaymentStatus.PAID
+        );
+        invoice.setPaidAt(LocalDateTime.now());
+
+        Invoice updated = invoiceRepository.save(invoice);
+        return billingMapper.toInvoiceResponse(updated);
+    }
+
+    @Override
+    @Transactional
+    public InvoiceResponse cancelInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new InvoiceNotFoundException(
+                        "Invoice not found: " + invoiceId
+                ));
+
+        invoice.setInvoiceStatus(InvoiceStatus.CANCELLED);
+        Invoice updated = invoiceRepository.save(invoice);
+        return billingMapper.toInvoiceResponse(updated);
+    }
+
+    private String generateInvoiceNumber() {
+        long sequence = invoiceRepository.count() + 1;
+        return "INV-" + String.format("%06d", sequence);
+    }
+
+    private boolean isFinalized(SaleDto sale) {
+        // TODO: Check sale status when SaleDto includes it
+        // For now, if sale exists and has items, consider it finalized
+        return sale != null && sale.getItems() != null && !sale.getItems().isEmpty();
+    }
+
 }

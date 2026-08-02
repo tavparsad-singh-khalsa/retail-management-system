@@ -47,6 +47,8 @@ public class SalesClient {
         private String variantName;
         private Integer quantity;
         private BigDecimal unitPrice;
+        private BigDecimal discountAmount;
+        private BigDecimal taxAmount;
         private BigDecimal lineTotal;
     }
 }
