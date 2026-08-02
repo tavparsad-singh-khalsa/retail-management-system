@@ -1,15 +1,8 @@
 package com.retail.billingservice.client;
 
-import org.springframework.stereotype.Component;
+public interface CustomerClient {
 
-/**
- * Simple RestClient stub for Customer service.
- */
-@Component
-public class CustomerClient {
+    boolean existsById(Long customerId);
 
-    public boolean existsById(Long customerId) {
-        // Stub - replace with REST call to Customer Service
-        return true; // assume exists for scaffolding
-    }
 }
+

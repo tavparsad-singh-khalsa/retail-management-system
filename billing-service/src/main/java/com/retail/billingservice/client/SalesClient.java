@@ -4,27 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * Simple RestClient stub for Sales service. Replace with RestClient integration.
- */
-@Component
-public class SalesClient {
+public interface SalesClient {
 
-    public SaleDto getFinalizedSale(Long saleId) {
-        // Stub - scaffolding only. Replace with real REST call to Sales Service.
-        return null;
-    }
+    SaleDto getFinalizedSale(Long saleId);
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class SaleDto {
+    class SaleDto {
         private Long id;
         private Long customerId;
         private BigDecimal subtotal;
@@ -38,7 +30,7 @@ public class SalesClient {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class SaleItemDto {
+    class SaleItemDto {
         private Long productId;
         private Long variantId;
         private String sku;
@@ -52,3 +44,4 @@ public class SalesClient {
         private BigDecimal lineTotal;
     }
 }
+
