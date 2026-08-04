@@ -200,3 +200,5 @@ ehthumbs.db
 .cache/
 temp/
 tmp/
+dependency-tree.txt
+plan.md
