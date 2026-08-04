@@ -12,15 +12,11 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class SaleItemDto {
-    private Long productId;
-    private Long variantId;
-    private String sku;
-    private String barcode;
-    private String productName;
-    private String variantName;
+    private Long id;
+    private Long productVariantId;
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal discountAmount;
     private BigDecimal taxAmount;
-    private BigDecimal lineTotal;
+    private BigDecimal totalAmount;
 }

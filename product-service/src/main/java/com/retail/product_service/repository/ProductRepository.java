@@ -4,7 +4,6 @@ import com.retail.product_service.entity.Brand;
 import com.retail.product_service.entity.Category;
 import com.retail.product_service.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;

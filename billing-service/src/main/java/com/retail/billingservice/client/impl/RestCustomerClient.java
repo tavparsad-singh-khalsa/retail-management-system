@@ -17,7 +17,7 @@ public class RestCustomerClient implements CustomerClient {
 
     private final RestClient customerRestClient;
 
-    private static final String GET_CUSTOMER = "/api/v1/customers/%d";
+    private static final String GET_CUSTOMER = "/api/customers/%d";
 
     @Override
     public boolean existsById(Long customerId) {

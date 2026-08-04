@@ -44,9 +44,9 @@ public class RestPurchaseClient implements PurchaseClient {
             return Collections.emptyList();
         }
         return allPurchases.stream()
-                .filter(p -> p.getCreatedAt() != null)
+                .filter(p -> p.getPurchaseDate() != null)
                 .filter(p -> {
-                    LocalDate date = p.getCreatedAt().toLocalDate();
+                    LocalDate date = p.getPurchaseDate();
                     boolean afterStart = (startDate == null) || !date.isBefore(startDate);
                     boolean beforeEnd = (endDate == null) || !date.isAfter(endDate);
                     return afterStart && beforeEnd;

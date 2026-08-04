@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         // 3. Create and Save Variant (Initial Save to generate ID)
         ProductVariant variant = ProductVariant.builder()
                 .product(product)
+                .sku("PENDING-" + UUID.randomUUID())
                 .purchasePrice(request.getPurchasePrice())
                 .minimumSellingPrice(request.getMinimumSellingPrice())
                 .sellingPrice(request.getSellingPrice())
@@ -224,10 +226,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         return ProductVariantResponse.builder()
                 .id(variant.getId())
                 .productId(variant.getProduct().getId())
-                // V2 Enhancement: Include productName, categoryName and brandName
-                // TODO: .productName(variant.getProduct().getName())
-                // TODO: .categoryName(variant.getProduct().getCategory().getName())
-                // TODO: .brandName(variant.getProduct().getBrand().getName())
+                .productCode(variant.getProduct().getProductCode())
+                .productName(variant.getProduct().getName())
+                .categoryName(variant.getProduct().getCategory().getName())
+                .brandName(variant.getProduct().getBrand().getName())
                 .sku(variant.getSku())
                 .barcode(variant.getBarcode())
                 .purchasePrice(variant.getPurchasePrice())

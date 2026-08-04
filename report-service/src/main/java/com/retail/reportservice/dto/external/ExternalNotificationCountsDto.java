@@ -9,8 +9,7 @@ import lombok.*;
 @Builder
 public class ExternalNotificationCountsDto {
 
-    private long pendingCount;
-    private long sentCount;
-    private long failedCount;
-    private long totalCount;
+    private long pending;
+    private long sent;
+    private long failed;
 }

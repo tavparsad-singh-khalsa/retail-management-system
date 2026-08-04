@@ -11,7 +11,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -42,6 +41,10 @@ public class SecurityConfig {
 
                         // Login must remain public
                         .requestMatchers("/auth/login")
+                        .permitAll()
+
+                        // Health endpoint must remain public
+                        .requestMatchers("/actuator/health")
                         .permitAll()
 
                         // Only OWNER can register employees

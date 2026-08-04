@@ -44,9 +44,9 @@ public class RestSalesClient implements SalesClient {
             return Collections.emptyList();
         }
         return allSales.stream()
-                .filter(s -> s.getCreatedAt() != null)
+                .filter(s -> s.getSaleDate() != null)
                 .filter(s -> {
-                    LocalDate date = s.getCreatedAt().toLocalDate();
+                    LocalDate date = s.getSaleDate().toLocalDate();
                     boolean afterStart = (startDate == null) || !date.isBefore(startDate);
                     boolean beforeEnd = (endDate == null) || !date.isAfter(endDate);
                     return afterStart && beforeEnd;

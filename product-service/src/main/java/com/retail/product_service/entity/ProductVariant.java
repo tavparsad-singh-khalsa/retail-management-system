@@ -25,7 +25,7 @@ import java.util.List;
 public class ProductVariant extends BaseEntity {
 
     @NotBlank(message = "SKU cannot be blank")
-    @Column(nullable = false, unique = true, updatable = false, length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String sku;
 
     // Barcode is optional, so no @NotBlank or nullable = false, but it must be unique if provided

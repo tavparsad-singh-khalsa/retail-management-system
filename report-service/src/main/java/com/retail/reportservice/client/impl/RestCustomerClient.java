@@ -25,7 +25,7 @@ public class RestCustomerClient implements CustomerClient {
         log.info("Fetching all customers from Customer Service...");
         try {
             List<ExternalCustomerDto> customers = customerRestClient.get()
-                    .uri("/api/v1/customers")
+                    .uri("/api/customers")
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
             return customers != null ? customers : Collections.emptyList();

@@ -7,7 +7,6 @@ import com.retail.auth.exception.InvalidCredentialsException;
 import com.retail.auth.security.CustomUserDetails;
 import com.retail.auth.security.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.retail.auth.entity.User;

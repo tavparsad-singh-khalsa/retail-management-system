@@ -12,7 +12,7 @@ import java.time.Duration;
 @Configuration
 public class RestClientConfig {
 
-    @Value("${sales-service.url:http://localhost:9093}")
+    @Value("${sales-service.url:http://localhost:9094}")
     private String salesServiceUrl;
 
     @Value("${sales-service.connect-timeout:5s}")
@@ -21,7 +21,7 @@ public class RestClientConfig {
     @Value("${sales-service.read-timeout:10s}")
     private Duration salesReadTimeout;
 
-    @Value("${customer-service.url:http://localhost:9094}")
+    @Value("${customer-service.url:http://localhost:9095}")
     private String customerServiceUrl;
 
     @Value("${customer-service.connect-timeout:5s}")

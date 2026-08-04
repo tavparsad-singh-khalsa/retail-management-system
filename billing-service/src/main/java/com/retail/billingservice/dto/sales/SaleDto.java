@@ -19,6 +19,6 @@ public class SaleDto {
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
     private BigDecimal discountAmount;
-    private BigDecimal total;
-    private List<SaleItemDto> items;
+    private BigDecimal totalAmount;
+    private List<SaleItemDto> saleItems;
 }

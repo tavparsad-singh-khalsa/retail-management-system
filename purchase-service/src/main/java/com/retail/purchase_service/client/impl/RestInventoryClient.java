@@ -16,7 +16,7 @@ public class RestInventoryClient implements InventoryClient {
 
     private final RestClient productRestClient;
 
-    private static final String RECEIVE_INVENTORY_URI = "/api/v1/inventory/purchase-receive";
+    private static final String RECEIVE_INVENTORY_URI = "/api/v1/integration/inventory/receive";
 
     @Override
     public InventoryOperationResponse receiveInventory(InventoryReceiveRequest request) {

@@ -1,5 +1,7 @@
 package com.retail.product_service.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.retail.product_service.dto.request.CreateAttributeValueRequest;
 import com.retail.product_service.dto.request.UpdateAttributeValueRequest;
 import com.retail.product_service.dto.response.AttributeValueResponse;
@@ -25,6 +27,7 @@ public class AttributeValueServiceImpl implements AttributeValueService {
 
     private final AttributeValueRepository attributeValueRepository;
     private final AttributeRepository attributeRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     @Override
@@ -189,9 +192,9 @@ public class AttributeValueServiceImpl implements AttributeValueService {
                 }
             }
             case COLOR -> {
-                // Version 1
-                // Accept any non-blank value.
-                // TODO: Later we can validate HEX (#FFFFFF) or RGB.
+                if (!value.matches("^(?:#[0-9A-Fa-f]{3}|#[0-9A-Fa-f]{6}|rgb\\(\\s*(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\s*,\\s*(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\s*,\\s*(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\s*\\))$")) {
+                    throw new InvalidAttributeValueException("Color must be a HEX value (#RGB or #RRGGBB) or RGB value (rgb(r, g, b)).");
+                }
             }
             case EMAIL -> {
                 // ⭐ IMPROVEMENT 5: Regex acceptable for V1
@@ -217,19 +220,21 @@ public class AttributeValueServiceImpl implements AttributeValueService {
                 }
             }
             case JSON -> {
-                // ⭐ IMPROVEMENT 6: Kept simple
-                // TODO: Add JSON syntax validation in Version 2
+                try {
+                    objectMapper.readTree(value);
+                } catch (JsonProcessingException ex) {
+                    throw new InvalidAttributeValueException("Invalid JSON.");
+                }
             }
             default -> throw new InvalidAttributeValueException("Unsupported attribute data type.");
         }
     }
 
     private AttributeValueResponse mapToResponse(AttributeValue attributeValue) {
-        // ⭐ IMPROVEMENT 7: Noted for V2
-        // TODO: In Version 2, expose attributeName (e.g., "Color") alongside the ID to improve the frontend experience.
         return AttributeValueResponse.builder()
                 .id(attributeValue.getId())
                 .attributeId(attributeValue.getAttribute().getId())
+                .attributeName(attributeValue.getAttribute().getName())
                 .value(attributeValue.getValue())
                 .isActive(attributeValue.getIsActive())
                 .createdAt(attributeValue.getCreatedAt())

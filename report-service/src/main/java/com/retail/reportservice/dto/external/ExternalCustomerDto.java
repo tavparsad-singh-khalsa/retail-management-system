@@ -10,8 +10,9 @@ import lombok.*;
 public class ExternalCustomerDto {
 
     private Long id;
-    private String customerNumber;
-    private String name;
+    private String customerCode;
+    private String firstName;
+    private String lastName;
+    private String mobileNumber;
     private String email;
-    private String phone;
 }

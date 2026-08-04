@@ -10,10 +10,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLOutput;
-import java.util.Optional;
-
-
 @Component
 @RequiredArgsConstructor
 @Order(2)

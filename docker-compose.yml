@@ -1,0 +1,110 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  auth-service:
+    build: ./auth-service
+    ports: ["19091:9091"]
+    environment: &auth_env
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-replace-this-with-a-32-character-secret}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_management
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  product-service:
+    build: ./product-service
+    ports: ["19092:9092"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_management
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  purchase-service:
+    build: ./purchase-service
+    ports: ["19093:9093"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_management
+      PRODUCT_SERVICE_URL: http://product-service:9092
+    depends_on:
+      product-service: { condition: service_started }
+
+  sales-service:
+    build: ./sales-service
+    ports: ["19094:9094"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sales_db
+      PRODUCT_SERVICE_URL: http://product-service:9092
+    depends_on:
+      product-service: { condition: service_started }
+
+  customer-service:
+    build: ./customer-service
+    ports: ["19095:9095"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Customer_db
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  billing-service:
+    build: ./billing-service
+    ports: ["19096:9096"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_billing
+      SALES_SERVICE_URL: http://sales-service:9094
+      CUSTOMER_SERVICE_URL: http://customer-service:9095
+    depends_on:
+      sales-service: { condition: service_started }
+      customer-service: { condition: service_started }
+
+  notification-service:
+    build: ./notification-service
+    ports: ["19097:9097"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_notification
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  report-service:
+    build: ./report-service
+    ports: ["19098:9098"]
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_report
+      APP_SERVICES_PRODUCT_URL: http://product-service:9092
+      APP_SERVICES_PURCHASE_URL: http://purchase-service:9093
+      APP_SERVICES_SALES_URL: http://sales-service:9094
+      APP_SERVICES_CUSTOMER_URL: http://customer-service:9095
+      APP_SERVICES_BILLING_URL: http://billing-service:9096
+      APP_SERVICES_NOTIFICATION_URL: http://notification-service:9097
+    depends_on:
+      billing-service: { condition: service_started }
+      notification-service: { condition: service_started }
+
+volumes:
+  postgres-data:

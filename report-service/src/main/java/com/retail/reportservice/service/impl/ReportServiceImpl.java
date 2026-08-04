@@ -22,7 +22,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -53,7 +52,7 @@ public class ReportServiceImpl implements ReportService {
 
             long totalSalesCount = sales.size();
             BigDecimal totalRevenue = sales.stream()
-                    .map(s -> s.getTotal() != null ? s.getTotal() : BigDecimal.ZERO)
+                    .map(s -> s.getTotalAmount() != null ? s.getTotalAmount() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal totalTax = sales.stream()
@@ -142,7 +141,7 @@ public class ReportServiceImpl implements ReportService {
             List<ExternalPurchaseDto> purchases = purchaseClient.getPurchasesByDateRange(request.getStartDate(), request.getEndDate());
 
             BigDecimal totalRevenue = sales.stream()
-                    .map(s -> s.getTotal() != null ? s.getTotal() : BigDecimal.ZERO)
+                    .map(s -> s.getTotalAmount() != null ? s.getTotalAmount() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal totalCostOfGoods = purchases.stream()
@@ -248,7 +247,7 @@ public class ReportServiceImpl implements ReportService {
 
             long totalSalesCount = sales.size();
             BigDecimal totalRevenue = sales.stream()
-                    .map(s -> s.getTotal() != null ? s.getTotal() : BigDecimal.ZERO)
+                    .map(s -> s.getTotalAmount() != null ? s.getTotalAmount() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             long totalPurchasesCount = purchases.size();
@@ -260,7 +259,7 @@ public class ReportServiceImpl implements ReportService {
                     .filter(i -> "GENERATED".equalsIgnoreCase(i.getInvoiceStatus()) || "PENDING".equalsIgnoreCase(i.getPaymentStatus()))
                     .count();
 
-            long pendingNotifications = notifCounts.getPendingCount();
+            long pendingNotifications = notifCounts.getPending();
 
             completeReportLog(logEntity, startTime, "Successfully generated Executive Dashboard.");
 
@@ -347,8 +346,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private String generateReportNumber() {
-        // TODO: Replace count() + 1 with PostgreSQL sequence for production concurrency safety
-        long sequence = reportLogRepository.count() + 1;
+        long sequence = reportLogRepository.nextReportNumberSequence();
         int year = java.time.Year.now().getValue();
         return String.format("REP-%d-%06d", year, sequence);
     }
@@ -357,14 +355,14 @@ public class ReportServiceImpl implements ReportService {
         Map<Long, SalesReportResponse.TopProductSummary> productMap = new HashMap<>();
 
         for (ExternalSaleDto sale : sales) {
-            if (sale.getItems() == null) continue;
-            for (ExternalSaleDto.ExternalSaleItemDto item : sale.getItems()) {
-                if (item.getProductId() == null) continue;
+            if (sale.getSaleItems() == null) continue;
+            for (ExternalSaleDto.ExternalSaleItemDto item : sale.getSaleItems()) {
+                if (item.getProductVariantId() == null) continue;
 
-                Long pId = item.getProductId();
+                Long pId = item.getProductVariantId();
                 long qty = item.getQuantity() != null ? item.getQuantity() : 0;
-                BigDecimal lineTot = item.getLineTotal() != null ? item.getLineTotal() : BigDecimal.ZERO;
-                String pName = item.getProductName() != null ? item.getProductName() : "Product #" + pId;
+                BigDecimal lineTot = item.getTotalAmount() != null ? item.getTotalAmount() : BigDecimal.ZERO;
+                String pName = "Product #" + pId;
 
                 productMap.compute(pId, (id, existing) -> {
                     if (existing == null) {

@@ -76,26 +76,21 @@ public class BillingServiceImpl implements BillingService {
                 .subtotal(sale.getSubtotal())
                 .taxAmount(sale.getTaxAmount())
                 .discountAmount(sale.getDiscountAmount())
-                .total(sale.getTotal())
+                .total(sale.getTotalAmount())
                 .currency("INR")
                 .invoiceStatus(InvoiceStatus.GENERATED)
                 .build();
 
         // Map sale items to invoice items
-        if (sale.getItems() != null && !sale.getItems().isEmpty()) {
-            sale.getItems().forEach(saleItem -> {
+        if (sale.getSaleItems() != null && !sale.getSaleItems().isEmpty()) {
+            sale.getSaleItems().forEach(saleItem -> {
                 InvoiceItem item = InvoiceItem.builder()
-                        .productId(saleItem.getProductId())
-                        .variantId(saleItem.getVariantId())
-                        .sku(saleItem.getSku())
-                        .barcode(saleItem.getBarcode())
-                        .productName(saleItem.getProductName())
-                        .variantName(saleItem.getVariantName())
+                        .variantId(saleItem.getProductVariantId())
                         .quantity(saleItem.getQuantity())
                         .unitPrice(saleItem.getUnitPrice())
                         .discountAmount(saleItem.getDiscountAmount())
                         .taxAmount(saleItem.getTaxAmount())
-                        .lineTotal(saleItem.getLineTotal())
+                        .lineTotal(saleItem.getTotalAmount())
                         .build();
                 invoice.addItem(item);
             });
@@ -184,8 +179,7 @@ public class BillingServiceImpl implements BillingService {
     }
 
     private String generateInvoiceNumber() {
-        // TODO: Replace count() + 1 with PostgreSQL sequence for production concurrency safety
-        long sequence = invoiceRepository.count() + 1;
+        long sequence = invoiceRepository.nextInvoiceNumberSequence();
         int year = java.time.Year.now().getValue();
         return String.format("INV-%d-%06d", year, sequence);
     }

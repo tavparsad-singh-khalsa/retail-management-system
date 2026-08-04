@@ -21,7 +21,7 @@ public class RestNotificationClient implements NotificationClient {
         log.info("Fetching notification counts from Notification Service...");
         try {
             ExternalNotificationCountsDto counts = notificationRestClient.get()
-                    .uri("/api/v1/notif/dashboard/counts")
+                    .uri("/api/v1/notifications/dashboard/counts")
                     .retrieve()
                     .body(ExternalNotificationCountsDto.class);
             return counts != null ? counts : new ExternalNotificationCountsDto();

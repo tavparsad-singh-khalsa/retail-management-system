@@ -20,9 +20,9 @@ public class ExternalSaleDto {
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
     private BigDecimal discountAmount;
-    private BigDecimal total;
-    private LocalDateTime createdAt;
-    private List<ExternalSaleItemDto> items;
+    private BigDecimal totalAmount;
+    private LocalDateTime saleDate;
+    private List<ExternalSaleItemDto> saleItems;
 
     @Getter
     @Setter
@@ -30,10 +30,11 @@ public class ExternalSaleDto {
     @AllArgsConstructor
     @Builder
     public static class ExternalSaleItemDto {
-        private Long productId;
-        private String productName;
+        private Long productVariantId;
         private Integer quantity;
         private BigDecimal unitPrice;
-        private BigDecimal lineTotal;
+        private BigDecimal discountAmount;
+        private BigDecimal taxAmount;
+        private BigDecimal totalAmount;
     }
 }

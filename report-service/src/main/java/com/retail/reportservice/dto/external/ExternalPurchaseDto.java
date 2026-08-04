@@ -3,7 +3,7 @@ package com.retail.reportservice.dto.external;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -17,5 +17,5 @@ public class ExternalPurchaseDto {
     private Long supplierId;
     private String status;
     private BigDecimal totalAmount;
-    private LocalDateTime createdAt;
+    private LocalDate purchaseDate;
 }
