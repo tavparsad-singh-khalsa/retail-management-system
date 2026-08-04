@@ -39,9 +39,14 @@ public class GlobalExceptionHandler {
         return build(ex, HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler({InvoiceAlreadyExistsException.class})
+    @ExceptionHandler({InvoiceAlreadyExistsException.class, InvoiceAlreadyPaidException.class})
     public ResponseEntity<ApiErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest request) {
         return build(ex, HttpStatus.CONFLICT, request);
+    }
+
+    @ExceptionHandler({InvalidPaymentException.class})
+    public ResponseEntity<ApiErrorResponse> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
+        return build(ex, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler({SaleNotFinalizedException.class})
@@ -49,9 +54,9 @@ public class GlobalExceptionHandler {
         return build(ex, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 
-    @ExceptionHandler({SalesServiceException.class})
-    public ResponseEntity<ApiErrorResponse> handleSalesServiceError(RuntimeException ex, HttpServletRequest request) {
-        log.error("Sales Service communication error: {}", ex.getMessage());
+    @ExceptionHandler({SalesServiceException.class, CustomerServiceException.class})
+    public ResponseEntity<ApiErrorResponse> handleExternalServiceError(RuntimeException ex, HttpServletRequest request) {
+        log.error("External service communication error: {}", ex.getMessage());
         return build(ex, HttpStatus.BAD_GATEWAY, request);
     }
 

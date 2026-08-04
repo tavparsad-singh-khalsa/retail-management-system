@@ -1,6 +1,7 @@
 package com.retail.billingservice.client.impl;
 
 import com.retail.billingservice.client.SalesClient;
+import com.retail.billingservice.dto.sales.SaleDto;
 import com.retail.billingservice.exception.SaleNotFoundException;
 import com.retail.billingservice.exception.SalesServiceException;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 @Slf4j
 @Service
@@ -42,11 +44,13 @@ public class RestSalesClient implements SalesClient {
             
             log.info("Successfully fetched sale {} from Sales Service", saleId);
             return response;
+        } catch (SaleNotFoundException e) {
+            throw e;
+        } catch (RestClientException e) {
+            log.error("REST client communication error fetching sale {} from Sales Service", saleId, e);
+            throw new SalesServiceException("Failed to fetch sale from Sales Service", e);
         } catch (Exception e) {
-            if (e instanceof SaleNotFoundException) {
-                throw e;
-            }
-            log.error("Failed to fetch sale {} from Sales Service", saleId, e);
+            log.error("Unexpected failure fetching sale {} from Sales Service", saleId, e);
             throw new SalesServiceException("Failed to fetch sale from Sales Service", e);
         }
     }
