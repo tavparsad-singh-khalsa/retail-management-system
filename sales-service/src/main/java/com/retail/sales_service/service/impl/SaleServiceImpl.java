@@ -181,6 +181,33 @@ public class SaleServiceImpl implements SaleService {
     @Transactional
     public SaleResponse cancelSale(Long saleId) {
         Sale s = saleRepository.findById(saleId).orElseThrow(() -> new SaleNotFoundException("Sale not found: " + saleId));
+
+        // Check if sale is already cancelled
+        if (s.getSaleStatus() == SaleStatus.CANCELLED) {
+            throw new InvalidSaleException("Sale is already cancelled: " + saleId);
+        }
+
+        // Check if sale has an active invoice
+        if (billingClient.hasActiveInvoice(saleId)) {
+            throw new SaleHasActiveInvoiceException(saleId);
+        }
+
+        // Restore inventory: aggregate quantities by variant so one deterministic
+        // RETURN movement is created per (sale, variant). This mirrors the SALE
+        // deduction aggregation (SalesIntegrationServiceImpl.aggregateItems) and
+        // ensures RETURN-{saleNumber}-VAR-{variantId} is collision-free even if
+        // the same variant appears as multiple SaleItem rows. The total restored
+        // per variant equals the total originally deducted.
+        if (s.getSaleItems() != null && !s.getSaleItems().isEmpty()) {
+            Map<Long, Integer> quantityByVariant = new LinkedHashMap<>();
+            for (SaleItem item : s.getSaleItems()) {
+                quantityByVariant.merge(item.getProductVariantId(), item.getQuantity(), Integer::sum);
+            }
+            for (Map.Entry<Long, Integer> entry : quantityByVariant.entrySet()) {
+                restoreInventoryForVariant(s, entry.getKey(), entry.getValue());
+            }
+        }
+
         s.setSaleStatus(SaleStatus.CANCELLED);
         saleRepository.save(s);
         return saleMapper.toResponse(s);

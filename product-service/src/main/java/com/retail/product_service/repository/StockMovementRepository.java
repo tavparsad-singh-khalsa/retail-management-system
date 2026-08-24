@@ -26,6 +26,11 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
     // 4. Search by reference number (e.g., PO-2026-00015)
     Optional<StockMovement> findByReferenceNumber(String referenceNumber);
 
+    // STEP 19D: All SALE movements for an operation reference. Idempotency
+    // lookup for inventory deductions (a multi-item sale records one movement
+    // per variant, all sharing the same reference).
+    List<StockMovement> findByReferenceNumberAndMovementType(String referenceNumber, MovementType movementType);
+
     // 5. Search by reference type (e.g., All Purchase Orders)
     List<StockMovement> findByReferenceType(ReferenceType referenceType);
 

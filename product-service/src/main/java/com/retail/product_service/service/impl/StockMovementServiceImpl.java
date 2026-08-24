@@ -14,6 +14,7 @@ import com.retail.product_service.repository.InventoryRepository;
 import com.retail.product_service.repository.StockMovementRepository;
 import com.retail.product_service.service.StockMovementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -41,6 +42,21 @@ public class StockMovementServiceImpl implements StockMovementService {
         validateReference(request);
         validateStockAvailability(inventory, request);
 
+        // Idempotency check: only SALE and RETURN use referenceNumber as operation
+        // identity (one movement per inventory+reference for SALE via unique partial
+        // index, one movement per inventory+reference for RETURN via V3 index).
+        // PURCHASE may legitimately reuse the same PO reference for multiple
+        // deliveries and ADJUSTMENT/DAMAGE/etc. have separate semantics, so they
+        // bypass this check to preserve existing behavior.
+        if (StringUtils.hasText(request.getReferenceNumber())
+                && (request.getMovementType() == MovementType.SALE || request.getMovementType() == MovementType.RETURN)) {
+            List<StockMovement> existing = stockMovementRepository.findByReferenceNumberAndMovementType(
+                    request.getReferenceNumber(), request.getMovementType());
+            if (existing != null && !existing.isEmpty()) {
+                return mapToResponse(existing.get(0));
+            }
+        }
+
         // 3. Mutate State
         updateInventory(inventory, request);
 
@@ -48,11 +64,24 @@ public class StockMovementServiceImpl implements StockMovementService {
         StockMovement movement = mapToEntity(request, inventory);
 
         // 5. Save (Inventory is persisted via dirty checking or explicit save)
-        inventoryRepository.save(inventory);
-        StockMovement savedMovement = stockMovementRepository.save(movement);
-
-        // 6. Respond
-        return mapToResponse(savedMovement);
+        // The pre-check handles the common idempotent-replay path. The catch
+        // below covers the concurrent race where two callers passed the check
+        // simultaneously; the DB unique index rejects the duplicate and we replay
+        // the winner instead of propagating a 500 or double-applying stock.
+        try {
+            inventoryRepository.save(inventory);
+            StockMovement savedMovement = stockMovementRepository.save(movement);
+            return mapToResponse(savedMovement);
+        } catch (DataIntegrityViolationException ex) {
+            if (request.getMovementType() == MovementType.SALE || request.getMovementType() == MovementType.RETURN) {
+                List<StockMovement> existing = stockMovementRepository.findByReferenceNumberAndMovementType(
+                        request.getReferenceNumber(), request.getMovementType());
+                if (existing != null && !existing.isEmpty()) {
+                    return mapToResponse(existing.get(0));
+                }
+            }
+            throw ex;
+        }
     }
 
     @Override
