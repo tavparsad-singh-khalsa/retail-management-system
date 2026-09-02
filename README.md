@@ -347,6 +347,8 @@ Retail-Management-System/
 | GET | `/api/v1/invoices/customer/{id}` | Invoices by customer |
 | PATCH | `/api/v1/invoices/{id}/mark-paid` | Mark invoice paid |
 | PATCH | `/api/v1/invoices/{id}/cancel` | Cancel invoice |
+| GET | `/api/v1/invoice-settings` | Get invoice settings |
+| PUT | `/api/v1/invoice-settings` | Update invoice settings (OWNER only) |
 
 ### Notification Service
 | Method | Endpoint | Description |

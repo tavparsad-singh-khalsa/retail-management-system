@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -46,7 +47,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             CategoryAlreadyExistsException.class,
             BrandAlreadyExistsException.class,
-            ProductAlreadyExistsException.class
+            ProductAlreadyExistsException.class,
+            InventoryIdempotencyConflictException.class
     })
     public ResponseEntity<ApiErrorResponse> handleConflictExceptions(
             RuntimeException ex, HttpServletRequest request) {
@@ -126,6 +128,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 request
         );
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.NOT_FOUND, request);
     }
 
     // --- Private Helper Method to Build Responses ---

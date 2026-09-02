@@ -1,0 +1,13 @@
+target/
+.git/
+.github/
+.idea/
+.vscode/
+*.iml
+*.log
+logs/
+graphify-out/
+.env
+.env.*
+README.md
+CHANGELOG.md

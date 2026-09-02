@@ -1,6 +1,7 @@
 package com.retail.reportservice.client.impl;
 
 import com.retail.reportservice.client.CustomerClient;
+import com.retail.reportservice.dto.PageResponse;
 import com.retail.reportservice.dto.external.ExternalCustomerDto;
 import com.retail.reportservice.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,11 @@ public class RestCustomerClient implements CustomerClient {
     public List<ExternalCustomerDto> getAllCustomers() {
         log.info("Fetching all customers from Customer Service...");
         try {
-            List<ExternalCustomerDto> customers = customerRestClient.get()
+            PageResponse<ExternalCustomerDto> page = customerRestClient.get()
                     .uri("/api/customers")
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
-            return customers != null ? customers : Collections.emptyList();
+            return page != null ? page.getContent() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch customers from Customer Service", e);
             throw new ExternalServiceException("Customer Service communication failure", e);

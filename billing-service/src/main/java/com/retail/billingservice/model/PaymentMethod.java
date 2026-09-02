@@ -4,5 +4,8 @@ public enum PaymentMethod {
     CASH,
     CARD,
     UPI,
-    BANK_TRANSFER
+    BANK_TRANSFER,
+    OTHER,
+    WALLET,
+    CHEQUE
 }

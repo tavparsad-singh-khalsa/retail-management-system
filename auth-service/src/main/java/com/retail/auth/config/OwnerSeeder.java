@@ -5,6 +5,7 @@ import com.retail.auth.entity.User;
 import com.retail.auth.repository.RoleRepository;
 import com.retail.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +19,21 @@ public class OwnerSeeder implements CommandLineRunner{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${owner.default.username:owner}")
+    private String defaultOwnerUsername;
+
+    @Value("${owner.default.email:}")
+    private String defaultOwnerEmail;
+
+    @Value("${owner.default.phone:}")
+    private String defaultOwnerPhone;
+
+    @Value("${owner.default.full-name:Default Owner}")
+    private String defaultOwnerFullName;
+
+    @Value("${owner.default.password}")
+    private String defaultOwnerPassword;
 
     @Override
     public void run(String... args) {
@@ -38,12 +54,12 @@ public class OwnerSeeder implements CommandLineRunner{
 
         User owner = new User();
 
-        owner.setUsername("owner");
-        owner.setPassword(passwordEncoder.encode("ChangeMe123"));
+        owner.setUsername(defaultOwnerUsername);
+        owner.setPassword(passwordEncoder.encode(defaultOwnerPassword));
 
-        owner.setFullName("Gurmeet Singh Saharanpuri");
-        owner.setEmail("gurmeetsinghsaharnpuri@gmail.com");
-        owner.setPhone("9646131305");
+        owner.setFullName(defaultOwnerFullName);
+        owner.setEmail(defaultOwnerEmail);
+        owner.setPhone(defaultOwnerPhone);
 
         owner.setRole(ownerRole);
 
@@ -57,7 +73,7 @@ public class OwnerSeeder implements CommandLineRunner{
 
         userRepository.save(owner);
 
-        System.out.println("Default OWNER account created successfully.");
+        System.out.println("Default OWNER account created successfully. Change its password on first login.");
 
     }
 

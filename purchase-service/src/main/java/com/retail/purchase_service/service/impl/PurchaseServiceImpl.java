@@ -18,6 +18,8 @@ import com.retail.purchase_service.repository.SupplierRepository;
 import com.retail.purchase_service.service.interfaces.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,10 +74,8 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PurchaseResponse> getAllPurchases() {
-        return purchaseRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .toList();
+    public Page<PurchaseResponse> getAllPurchases(Pageable pageable) {
+        return purchaseRepository.findAll(pageable).map(this::mapToResponse);
     }
 
     @Override

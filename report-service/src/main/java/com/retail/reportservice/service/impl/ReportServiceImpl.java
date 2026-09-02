@@ -183,29 +183,29 @@ public class ReportServiceImpl implements ReportService {
         ReportLog logEntity = createInitialReportLog(ReportType.INVENTORY_STATUS, request);
 
         try {
-            List<ExternalProductDto> products = productClient.getAllProducts();
+            List<ExternalInventoryDto> inventory = productClient.getAllInventory();
 
-            long totalProductsCount = products.size();
-            long inStockCount = products.stream()
-                    .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > (p.getMinStockLevel() != null ? p.getMinStockLevel() : 5))
+            long totalInventoryRecords = inventory.size();
+            long inStockCount = inventory.stream()
+                    .filter(inv -> inv.getCurrentStock() != null && inv.getCurrentStock() > (inv.getMinimumStock() != null ? inv.getMinimumStock() : 0))
                     .count();
 
-            long lowStockCount = products.stream()
-                    .filter(p -> p.getStockQuantity() != null && p.getStockQuantity() > 0 && p.getStockQuantity() <= (p.getMinStockLevel() != null ? p.getMinStockLevel() : 5))
+            long lowStockCount = inventory.stream()
+                    .filter(inv -> inv.getCurrentStock() != null && inv.getCurrentStock() > 0 && inv.getCurrentStock() <= (inv.getMinimumStock() != null ? inv.getMinimumStock() : 0))
                     .count();
 
-            long outOfStockCount = products.stream()
-                    .filter(p -> p.getStockQuantity() == null || p.getStockQuantity() <= 0)
+            long outOfStockCount = inventory.stream()
+                    .filter(inv -> inv.getCurrentStock() == null || inv.getCurrentStock() <= 0)
                     .count();
 
-            List<InventoryStatusReportResponse.LowStockItemSummary> lowStockItems = products.stream()
-                    .filter(p -> p.getStockQuantity() == null || p.getStockQuantity() <= (p.getMinStockLevel() != null ? p.getMinStockLevel() : 5))
-                    .map(p -> InventoryStatusReportResponse.LowStockItemSummary.builder()
-                            .productId(p.getId())
-                            .sku(p.getSku())
-                            .name(p.getName())
-                            .currentStock(p.getStockQuantity() != null ? p.getStockQuantity() : 0)
-                            .minStockLevel(p.getMinStockLevel() != null ? p.getMinStockLevel() : 5)
+            List<InventoryStatusReportResponse.LowStockItemSummary> lowStockItems = inventory.stream()
+                    .filter(inv -> inv.getCurrentStock() == null || inv.getCurrentStock() <= (inv.getMinimumStock() != null ? inv.getMinimumStock() : 0))
+                    .map(inv -> InventoryStatusReportResponse.LowStockItemSummary.builder()
+                            .productId(inv.getProductVariantId())
+                            .sku(inv.getSku())
+                            .name(inv.getProductName())
+                            .currentStock(inv.getCurrentStock() != null ? inv.getCurrentStock() : 0)
+                            .minStockLevel(inv.getMinimumStock() != null ? inv.getMinimumStock() : 0)
                             .build())
                     .toList();
 
@@ -213,7 +213,7 @@ public class ReportServiceImpl implements ReportService {
 
             return InventoryStatusReportResponse.builder()
                     .reportNumber(logEntity.getReportNumber())
-                    .totalProductsCount(totalProductsCount)
+                    .totalProductsCount(totalInventoryRecords)
                     .inStockCount(inStockCount)
                     .lowStockCount(lowStockCount)
                     .outOfStockCount(outOfStockCount)

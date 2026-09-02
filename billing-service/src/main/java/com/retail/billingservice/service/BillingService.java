@@ -1,8 +1,9 @@
 package com.retail.billingservice.service;
 
 import com.retail.billingservice.dto.request.CreateInvoiceRequest;
-import com.retail.billingservice.dto.request.MarkPaidRequest;
 import com.retail.billingservice.dto.response.InvoiceResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -14,11 +15,11 @@ public interface BillingService {
 
     InvoiceResponse getInvoiceByNumber(String invoiceNumber);
 
-    List<InvoiceResponse> getAllInvoices();
+    Page<InvoiceResponse> getAllInvoices(Pageable pageable);
 
     List<InvoiceResponse> getInvoicesByCustomer(Long customerId);
 
-    InvoiceResponse markPaid(Long invoiceId, MarkPaidRequest request);
+    InvoiceResponse getInvoiceBySaleId(Long saleId);
 
     InvoiceResponse cancelInvoice(Long invoiceId);
 

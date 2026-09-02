@@ -14,11 +14,14 @@ import java.util.List;
 @Builder
 public class SaleDto {
     private Long id;
+    private String saleNumber;
     private Long customerId;
     private SaleStatus saleStatus;
+    private String paymentStatus;
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
     private BigDecimal discountAmount;
     private BigDecimal totalAmount;
     private List<SaleItemDto> saleItems;
+    private List<SalePaymentDto> payments;
 }

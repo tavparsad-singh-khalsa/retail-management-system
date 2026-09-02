@@ -31,6 +31,15 @@ public class Sale {
     @Column(unique = true)
     private String saleNumber;
 
+    // Client-supplied idempotency key covering the entire create-sale operation.
+    // Nullable for backward compatibility; UNIQUE index protects concurrent duplicate requests.
+    @Column(name = "idempotency_key", length = 64)
+    private String idempotencyKey;
+
+    // Deterministic SHA-256 fingerprint of the normalized CreateSaleRequest.
+    @Column(name = "idempotency_request_hash", length = 64)
+    private String idempotencyRequestHash;
+
     private Long customerId;
 
     @Column(nullable = false, precision = 12, scale = 2)

@@ -1,9 +1,12 @@
 services:
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "55432:5432"
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/01-init-databases.sh:ro
@@ -15,86 +18,149 @@ services:
 
   auth-service:
     build: ./auth-service
+    restart: unless-stopped
     ports: ["19091:9091"]
     environment: &auth_env
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      JWT_SECRET: ${JWT_SECRET:-replace-this-with-a-32-character-secret}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
+      OWNER_DEFAULT_USERNAME: ${OWNER_DEFAULT_USERNAME:-owner}
+      OWNER_DEFAULT_EMAIL: ${OWNER_DEFAULT_EMAIL:-}
+      OWNER_DEFAULT_PHONE: ${OWNER_DEFAULT_PHONE:-}
+      OWNER_DEFAULT_FULL_NAME: ${OWNER_DEFAULT_FULL_NAME:-Default Owner}
+      OWNER_DEFAULT_PASSWORD: ${OWNER_DEFAULT_PASSWORD:?OWNER_DEFAULT_PASSWORD must be set in .env}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_management
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9091/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
       postgres: { condition: service_healthy }
 
   product-service:
     build: ./product-service
+    restart: unless-stopped
     ports: ["19092:9092"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_management
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9092/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
       postgres: { condition: service_healthy }
 
   purchase-service:
     build: ./purchase-service
+    restart: unless-stopped
     ports: ["19093:9093"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_management
       PRODUCT_SERVICE_URL: http://product-service:9092
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9093/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
-      product-service: { condition: service_started }
+      product-service: { condition: service_healthy }
 
   sales-service:
     build: ./sales-service
+    restart: unless-stopped
     ports: ["19094:9094"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/sales_db
       PRODUCT_SERVICE_URL: http://product-service:9092
+      BILLING_SERVICE_URL: http://billing-service:9096
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9094/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
-      product-service: { condition: service_started }
+      product-service: { condition: service_healthy }
 
   customer-service:
     build: ./customer-service
+    restart: unless-stopped
     ports: ["19095:9095"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Customer_db
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9095/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
       postgres: { condition: service_healthy }
 
   billing-service:
     build: ./billing-service
+    restart: unless-stopped
     ports: ["19096:9096"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_billing
       SALES_SERVICE_URL: http://sales-service:9094
       CUSTOMER_SERVICE_URL: http://customer-service:9095
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9096/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
-      sales-service: { condition: service_started }
-      customer-service: { condition: service_started }
+      sales-service: { condition: service_healthy }
+      customer-service: { condition: service_healthy }
 
   notification-service:
     build: ./notification-service
+    restart: unless-stopped
     ports: ["19097:9097"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_notification
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9097/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
       postgres: { condition: service_healthy }
 
   report-service:
     build: ./report-service
+    restart: unless-stopped
     ports: ["19098:9098"]
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set in .env (32+ chars)}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/retail_report
       APP_SERVICES_PRODUCT_URL: http://product-service:9092
       APP_SERVICES_PURCHASE_URL: http://purchase-service:9093
@@ -102,9 +168,15 @@ services:
       APP_SERVICES_CUSTOMER_URL: http://customer-service:9095
       APP_SERVICES_BILLING_URL: http://billing-service:9096
       APP_SERVICES_NOTIFICATION_URL: http://notification-service:9097
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:9098/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 5
     depends_on:
-      billing-service: { condition: service_started }
-      notification-service: { condition: service_started }
+      billing-service: { condition: service_healthy }
+      notification-service: { condition: service_healthy }
 
 volumes:
   postgres-data:

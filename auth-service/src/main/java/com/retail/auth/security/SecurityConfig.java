@@ -47,6 +47,10 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health")
                         .permitAll()
 
+                        // Swagger UI / OpenAPI docs must remain public
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll()
+
                         // Only OWNER can register employees
                         .requestMatchers("/auth/register")
                         .hasRole("OWNER")

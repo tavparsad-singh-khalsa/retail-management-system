@@ -3,6 +3,8 @@ package com.retail.purchase_service.service.interfaces;
 import com.retail.purchase_service.dto.request.CreatePurchaseRequest;
 import com.retail.purchase_service.dto.response.PurchaseResponse;
 import com.retail.purchase_service.enums.PurchaseStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +17,7 @@ public interface PurchaseService {
     // Read Operations
     PurchaseResponse getPurchaseById(Long id);
     PurchaseResponse getPurchaseByNumber(String purchaseNumber);
-    List<PurchaseResponse> getAllPurchases();
+    Page<PurchaseResponse> getAllPurchases(Pageable pageable);
 
     // Search & Filtering Operations
     List<PurchaseResponse> getPurchasesByStatus(PurchaseStatus status);

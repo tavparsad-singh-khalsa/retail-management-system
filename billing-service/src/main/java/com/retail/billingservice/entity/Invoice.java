@@ -33,8 +33,14 @@ public class Invoice {
     @Column(name = "sale_id", nullable = false, unique = true)
     private Long saleId;
 
+    @Column(name = "sale_number", length = 50)
+    private String saleNumber;
+
     @Column(name = "customer_id", nullable = false)
     private Long customerId;
+
+    @Column(name = "customer_name", length = 255)
+    private String customerName;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal subtotal;

@@ -6,6 +6,8 @@ import com.retail.customerservice.dto.request.UpdateCustomerAddressRequest;
 import com.retail.customerservice.dto.request.UpdateCustomerRequest;
 import com.retail.customerservice.dto.response.CustomerAddressResponse;
 import com.retail.customerservice.dto.response.CustomerResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -17,7 +19,7 @@ public interface CustomerService {
 
     CustomerResponse getCustomerById(Long customerId);
 
-    List<CustomerResponse> getAllCustomers();
+    Page<CustomerResponse> getAllCustomers(Pageable pageable);
 
     CustomerResponse getCustomerByCode(String customerCode);
 

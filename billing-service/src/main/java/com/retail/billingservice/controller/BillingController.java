@@ -1,11 +1,13 @@
 package com.retail.billingservice.controller;
 
 import com.retail.billingservice.dto.request.CreateInvoiceRequest;
-import com.retail.billingservice.dto.request.MarkPaidRequest;
 import com.retail.billingservice.dto.response.InvoiceResponse;
 import com.retail.billingservice.service.BillingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,16 +42,14 @@ public class BillingController {
         return ResponseEntity.ok(billingService.getInvoicesByCustomer(customerId));
     }
 
-    @GetMapping
-    public ResponseEntity<List<InvoiceResponse>> getAll() {
-        return ResponseEntity.ok(billingService.getAllInvoices());
+    @GetMapping("/sale/{saleId}")
+    public ResponseEntity<InvoiceResponse> getInvoiceBySaleId(@PathVariable Long saleId) {
+        return ResponseEntity.ok(billingService.getInvoiceBySaleId(saleId));
     }
 
-    @PatchMapping("/{id}/mark-paid")
-    public ResponseEntity<InvoiceResponse> markPaid(
-            @PathVariable Long id,
-            @Valid @RequestBody MarkPaidRequest request) {
-        return ResponseEntity.ok(billingService.markPaid(id, request));
+    @GetMapping
+    public ResponseEntity<Page<InvoiceResponse>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(billingService.getAllInvoices(pageable));
     }
 
     @PatchMapping("/{id}/cancel")

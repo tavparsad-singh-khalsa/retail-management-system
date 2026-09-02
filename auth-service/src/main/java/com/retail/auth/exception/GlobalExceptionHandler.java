@@ -1,100 +1,131 @@
 package com.retail.auth.exception;
 
-
-
-import com.retail.auth.dto.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUsernameAlreadyExistsException(
-            UsernameAlreadyExistsException ex){
-        return buildErrorResponse(
-                ex.getMessage(),
-                HttpStatus.CONFLICT
-        );
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiErrorResponse> handleValidationExceptions(
+            MethodArgumentNotValidException ex, HttpServletRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            errors.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message("Validation failed")
+                .path(request.getRequestURI())
+                .validationErrors(errors)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsException(
-            EmailAlreadyExistsException ex){
-        return buildErrorResponse(
-                ex.getMessage(),
-                HttpStatus.CONFLICT
-        );
+    @ExceptionHandler({
+            UsernameAlreadyExistsException.class,
+            EmailAlreadyExistsException.class,
+            PhoneAlreadyExistsException.class
+    })
+    public ResponseEntity<ApiErrorResponse> handleConflictExceptions(
+            RuntimeException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.CONFLICT, request);
     }
-
 
     @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRoleNotFoundException(
-            RoleNotFoundException ex){
-        return buildErrorResponse(
-                ex.getMessage(),
-                HttpStatus.NOT_FOUND
-        );
+    public ResponseEntity<ApiErrorResponse> handleNotFoundExceptions(
+            RuntimeException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(AccountDisabledException.class)
-    public ResponseEntity<ErrorResponse> handleAccountDisabledException( AccountDisabledException ex){
-        return buildErrorResponse(
-                ex.getMessage(),
-                HttpStatus.FORBIDDEN
-        );
-
+    public ResponseEntity<ApiErrorResponse> handleAccountDisabledException(
+            AccountDisabledException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.FORBIDDEN, request);
     }
 
     @ExceptionHandler(AccountLockedException.class)
-    public ResponseEntity<ErrorResponse> handleAccountLockedException(
-            AccountLockedException ex){
-        return buildErrorResponse(
-                ex.getMessage(),
-                HttpStatus.LOCKED
-        );
+    public ResponseEntity<ApiErrorResponse> handleAccountLockedException(
+            AccountLockedException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.LOCKED, request);
     }
+
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
-            InvalidCredentialsException ex
-    ){
+    public ResponseEntity<ApiErrorResponse> handleInvalidCredentialsException(
+            InvalidCredentialsException ex, HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.METHOD_NOT_ALLOWED, request);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorResponse> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
         return buildErrorResponse(
-                ex.getMessage(),
-                HttpStatus.BAD_REQUEST
+                new IllegalArgumentException("Invalid value for '" + ex.getName() + "'"),
+                HttpStatus.BAD_REQUEST,
+                request
         );
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(
-            MethodArgumentNotValidException ex) {
-
-        String errorMessage = ex.getBindingResult()
-                .getFieldError()
-                .getDefaultMessage();
-
-        return buildErrorResponse(
-                errorMessage,
-                HttpStatus.BAD_REQUEST
-        );
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleNoResourceFound(
+            NoResourceFoundException ex,
+            HttpServletRequest request) {
+        return buildErrorResponse(ex, HttpStatus.NOT_FOUND, request);
     }
 
-    private ResponseEntity<ErrorResponse> buildErrorResponse(
-            String message,
-            HttpStatus status
-    ){
-        ErrorResponse response = new ErrorResponse();
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiErrorResponse> handleGlobalException(
+            Exception ex, HttpServletRequest request) {
+        log.error("Unexpected exception", ex);
 
-        response.setStatus(status.value());
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .message("An unexpected error occurred")
+                .path(request.getRequestURI())
+                .build();
 
-        response.setMessage(message);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 
-        response.setTimestamp(LocalDateTime.now());
+    private ResponseEntity<ApiErrorResponse> buildErrorResponse(
+            Exception ex, HttpStatus status, HttpServletRequest request) {
+        ApiErrorResponse response = ApiErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
 
         return ResponseEntity.status(status).body(response);
     }
-
 }

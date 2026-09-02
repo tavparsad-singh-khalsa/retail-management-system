@@ -12,6 +12,12 @@ import java.time.Duration;
 @Configuration
 public class RestClientConfig {
 
+    private final AuthorizationHeaderPropagationInterceptor authInterceptor;
+
+    public RestClientConfig(AuthorizationHeaderPropagationInterceptor authInterceptor) {
+        this.authInterceptor = authInterceptor;
+    }
+
     @Value("${product-service.url}")
     private String productServiceUrl;
 
@@ -21,7 +27,16 @@ public class RestClientConfig {
     @Value("${product-service.read-timeout}")
     private Duration readTimeout;
 
-    @Bean
+    @Value("${billing-service.url}")
+    private String billingServiceUrl;
+
+    @Value("${billing-service.connect-timeout}")
+    private Duration billingConnectTimeout;
+
+    @Value("${billing-service.read-timeout}")
+    private Duration billingReadTimeout;
+
+    @Bean("productRestClient")
     public RestClient productRestClient(RestClient.Builder builder) {
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(connectTimeout)
@@ -33,6 +48,23 @@ public class RestClientConfig {
         return builder
                 .baseUrl(productServiceUrl)
                 .requestFactory(factory)
+                .requestInterceptor(authInterceptor)
+                .build();
+    }
+
+    @Bean("billingRestClient")
+    public RestClient billingRestClient(RestClient.Builder builder) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(billingConnectTimeout)
+                .build();
+
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
+        factory.setReadTimeout(billingReadTimeout);
+
+        return builder
+                .baseUrl(billingServiceUrl)
+                .requestFactory(factory)
+                .requestInterceptor(authInterceptor)
                 .build();
     }
 }

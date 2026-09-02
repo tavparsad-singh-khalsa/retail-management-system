@@ -16,6 +16,8 @@ import com.retail.customerservice.mapper.CustomerMapper;
 import com.retail.customerservice.repository.CustomerRepository;
 import com.retail.customerservice.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,10 +81,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CustomerResponse> getAllCustomers() {
-        return customerRepository.findAll().stream()
-                .map(customerMapper::toCustomerResponse)
-                .toList();
+    public Page<CustomerResponse> getAllCustomers(Pageable pageable) {
+        return customerRepository.findAll(pageable).map(customerMapper::toCustomerResponse);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional(readOnly = true)
     public List<CustomerResponse> searchCustomers(String keyword) {
         if (!hasText(keyword)) {
-            return getAllCustomers();
+            return getAllCustomers(Pageable.unpaged()).getContent();
         }
 
         String normalizedKeyword = keyword.trim().toLowerCase();

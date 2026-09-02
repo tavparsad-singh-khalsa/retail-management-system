@@ -1,0 +1,71 @@
+-- sales_db (sales-service) - 15 sales, 33 items, 13 payments (2 pending sales)
+BEGIN;
+
+INSERT INTO sales (id, active, customer_id, discount_amount, notes, payment_status, sale_date, sale_number, sale_status, subtotal, tax_amount, total_amount) VALUES
+(1,  true, 1,  0.00, 'Walk-in counter sale',       'PAID',    TIMESTAMP '2026-06-02 12:15:00', 'SAL-2026-000001', 'COMPLETED', 5097.00, 0.00, 5097.00),
+(2,  true, 2,  0.00, 'UPI payment at counter',     'PAID',    TIMESTAMP '2026-06-05 14:30:00', 'SAL-2026-000002', 'COMPLETED', 2148.00, 0.00, 2148.00),
+(3,  true, 3,  0.00, 'Card transaction',           'PAID',    TIMESTAMP '2026-06-09 11:05:00', 'SAL-2026-000003', 'COMPLETED', 2198.00, 0.00, 2198.00),
+(4,  true, 4,  0.00, 'UPI payment at counter',     'PAID',    TIMESTAMP '2026-06-12 18:45:00', 'SAL-2026-000004', 'COMPLETED', 1948.00, 0.00, 1948.00),
+(5,  true, 5,  0.00, 'Walk-in counter sale',       'PAID',    TIMESTAMP '2026-06-15 13:20:00', 'SAL-2026-000005', 'COMPLETED', 3798.00, 0.00, 3798.00),
+(6,  true, 6,  0.00, 'UPI payment at counter',     'PAID',    TIMESTAMP '2026-06-19 16:10:00', 'SAL-2026-000006', 'COMPLETED', 2247.00, 0.00, 2247.00),
+(7,  true, 7,  0.00, 'Card transaction',           'PAID',    TIMESTAMP '2026-06-23 12:40:00', 'SAL-2026-000007', 'COMPLETED', 2948.00, 0.00, 2948.00),
+(8,  true, 8,  0.00, 'Walk-in counter sale',       'PAID',    TIMESTAMP '2026-06-27 15:55:00', 'SAL-2026-000008', 'COMPLETED', 2498.00, 0.00, 2498.00),
+(9,  true, 9,  0.00, 'UPI payment at counter',     'PAID',    TIMESTAMP '2026-07-02 11:25:00', 'SAL-2026-000009', 'COMPLETED', 1698.00, 0.00, 1698.00),
+(10, true, 10, 0.00, 'Card transaction',           'PAID',    TIMESTAMP '2026-07-06 17:35:00', 'SAL-2026-000010', 'COMPLETED', 5697.00, 0.00, 5697.00),
+(11, true, 1,  0.00, 'Repeat customer purchase',   'PAID',    TIMESTAMP '2026-07-10 12:05:00', 'SAL-2026-000011', 'COMPLETED', 3398.00, 0.00, 3398.00),
+(12, true, 2,  0.00, 'UPI payment at counter',     'PAID',    TIMESTAMP '2026-07-15 14:50:00', 'SAL-2026-000012', 'COMPLETED', 1948.00, 0.00, 1948.00),
+(13, true, 3,  0.00, 'Card transaction',           'PAID',    TIMESTAMP '2026-07-20 13:15:00', 'SAL-2026-000013', 'COMPLETED', 3898.00, 0.00, 3898.00),
+(14, true, 4,  0.00, 'Awaiting payment',           'PENDING', TIMESTAMP '2026-07-25 18:30:00', 'SAL-2026-000014', 'COMPLETED', 1148.00, 0.00, 1148.00),
+(15, true, 5,  0.00, 'Awaiting payment',           'PENDING', TIMESTAMP '2026-07-30 19:10:00', 'SAL-2026-000015', 'COMPLETED', 2997.00, 0.00, 2997.00);
+
+INSERT INTO sale_items (id, discount_amount, product_variant_id, quantity, tax_amount, total_amount, unit_price, sale_id) VALUES
+(1,  0.00,  2, 1, 0.00,  799.00,  799.00, 1),
+(2,  0.00, 19, 1, 0.00, 3499.00, 3499.00, 1),
+(3,  0.00, 25, 1, 0.00,  799.00,  799.00, 1),
+(4,  0.00,  3, 1, 0.00, 1699.00, 1699.00, 2),
+(5,  0.00, 27, 1, 0.00,  449.00,  449.00, 2),
+(6,  0.00,  5, 1, 0.00, 1199.00, 1199.00, 3),
+(7,  0.00, 11, 1, 0.00,  999.00,  999.00, 3),
+(8,  0.00,  7, 1, 0.00, 1399.00, 1399.00, 4),
+(9,  0.00, 29, 1, 0.00,  549.00,  549.00, 4),
+(10, 0.00, 21, 1, 0.00, 2999.00, 2999.00, 5),
+(11, 0.00,  1, 1, 0.00,  799.00,  799.00, 5),
+(12, 0.00,  9, 1, 0.00, 1099.00, 1099.00, 6),
+(13, 0.00, 13, 1, 0.00,  599.00,  599.00, 6),
+(14, 0.00, 15, 1, 0.00,  549.00,  549.00, 6),
+(15, 0.00, 23, 1, 0.00, 2499.00, 2499.00, 7),
+(16, 0.00, 28, 1, 0.00,  449.00,  449.00, 7),
+(17, 0.00,  4, 1, 0.00, 1699.00, 1699.00, 8),
+(18, 0.00, 26, 1, 0.00,  799.00,  799.00, 8),
+(19, 0.00, 10, 1, 0.00, 1099.00, 1099.00, 9),
+(20, 0.00, 14, 1, 0.00,  599.00,  599.00, 9),
+(21, 0.00,  6, 1, 0.00, 1199.00, 1199.00, 10),
+(22, 0.00, 12, 1, 0.00,  999.00,  999.00, 10),
+(23, 0.00, 20, 1, 0.00, 3499.00, 3499.00, 10),
+(24, 0.00, 17, 1, 0.00,  899.00,  899.00, 11),
+(25, 0.00, 24, 1, 0.00, 2499.00, 2499.00, 11),
+(26, 0.00,  8, 1, 0.00, 1399.00, 1399.00, 12),
+(27, 0.00, 16, 1, 0.00,  549.00,  549.00, 12),
+(28, 0.00, 18, 1, 0.00,  899.00,  899.00, 13),
+(29, 0.00, 22, 1, 0.00, 2999.00, 2999.00, 13),
+(30, 0.00, 30, 1, 0.00,  549.00,  549.00, 14),
+(31, 0.00, 13, 1, 0.00,  599.00,  599.00, 14),
+(32, 0.00,  2, 2, 0.00, 1598.00,  799.00, 15),
+(33, 0.00,  7, 1, 0.00, 1399.00, 1399.00, 15);
+
+INSERT INTO payments (id, active, amount, notes, payment_date, payment_method, payment_status, transaction_reference, sale_id) VALUES
+(1,  true, 5097.00, 'Cash received',     TIMESTAMP '2026-06-02 12:20:00', 'CASH', 'PAID', 'TXN-2026-0001', 1),
+(2,  true, 2148.00, 'UPI received',      TIMESTAMP '2026-06-05 14:35:00', 'UPI',  'PAID', 'TXN-2026-0002', 2),
+(3,  true, 2198.00, 'Card charged',      TIMESTAMP '2026-06-09 11:10:00', 'CARD', 'PAID', 'TXN-2026-0003', 3),
+(4,  true, 1948.00, 'UPI received',      TIMESTAMP '2026-06-12 18:50:00', 'UPI',  'PAID', 'TXN-2026-0004', 4),
+(5,  true, 3798.00, 'Cash received',     TIMESTAMP '2026-06-15 13:25:00', 'CASH', 'PAID', 'TXN-2026-0005', 5),
+(6,  true, 2247.00, 'UPI received',      TIMESTAMP '2026-06-19 16:15:00', 'UPI',  'PAID', 'TXN-2026-0006', 6),
+(7,  true, 2948.00, 'Card charged',      TIMESTAMP '2026-06-23 12:45:00', 'CARD', 'PAID', 'TXN-2026-0007', 7),
+(8,  true, 2498.00, 'Cash received',     TIMESTAMP '2026-06-27 16:00:00', 'CASH', 'PAID', 'TXN-2026-0008', 8),
+(9,  true, 1698.00, 'UPI received',      TIMESTAMP '2026-07-02 11:30:00', 'UPI',  'PAID', 'TXN-2026-0009', 9),
+(10, true, 5697.00, 'Card charged',      TIMESTAMP '2026-07-06 17:40:00', 'CARD', 'PAID', 'TXN-2026-0010', 10),
+(11, true, 3398.00, 'Cash received',     TIMESTAMP '2026-07-10 12:10:00', 'CASH', 'PAID', 'TXN-2026-0011', 11),
+(12, true, 1948.00, 'UPI received',      TIMESTAMP '2026-07-15 14:55:00', 'UPI',  'PAID', 'TXN-2026-0012', 12),
+(13, true, 3898.00, 'Card charged',      TIMESTAMP '2026-07-20 13:20:00', 'CARD', 'PAID', 'TXN-2026-0013', 13);
+
+COMMIT;

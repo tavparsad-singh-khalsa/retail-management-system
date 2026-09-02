@@ -1,6 +1,7 @@
 package com.retail.reportservice.client.impl;
 
 import com.retail.reportservice.client.SalesClient;
+import com.retail.reportservice.dto.PageResponse;
 import com.retail.reportservice.dto.external.ExternalSaleDto;
 import com.retail.reportservice.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,11 @@ public class RestSalesClient implements SalesClient {
     public List<ExternalSaleDto> getAllSales() {
         log.info("Fetching all sales from Sales Service...");
         try {
-            List<ExternalSaleDto> sales = salesRestClient.get()
+            PageResponse<ExternalSaleDto> page = salesRestClient.get()
                     .uri("/api/v1/sales")
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
-            return sales != null ? sales : Collections.emptyList();
+            return page != null ? page.getContent() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch sales from Sales Service", e);
             throw new ExternalServiceException("Sales Service communication failure", e);

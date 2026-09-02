@@ -33,11 +33,21 @@ public class JwtService {
     public String generateToken(UserDetails userDetails){
         Date now = new Date();
         return Jwts.builder().subject(userDetails.getUsername())
+                .claim("role", extractRoleName(userDetails))
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationTime))
                 .signWith(getSigningKey())
                 .compact();
 
+    }
+
+    private String extractRoleName(UserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority().startsWith("ROLE_")
+                        ? authority.getAuthority().substring("ROLE_".length())
+                        : authority.getAuthority())
+                .orElse("");
     }
     private Claims extractAllClaims(String token){
         return Jwts.parser()

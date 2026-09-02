@@ -1,6 +1,7 @@
 package com.retail.reportservice.client.impl;
 
 import com.retail.reportservice.client.PurchaseClient;
+import com.retail.reportservice.dto.PageResponse;
 import com.retail.reportservice.dto.external.ExternalPurchaseDto;
 import com.retail.reportservice.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,11 @@ public class RestPurchaseClient implements PurchaseClient {
     public List<ExternalPurchaseDto> getAllPurchases() {
         log.info("Fetching all purchases from Purchase Service...");
         try {
-            List<ExternalPurchaseDto> purchases = purchaseRestClient.get()
+            PageResponse<ExternalPurchaseDto> page = purchaseRestClient.get()
                     .uri("/api/v1/purchases")
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
-            return purchases != null ? purchases : Collections.emptyList();
+            return page != null ? page.getContent() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch purchases from Purchase Service", e);
             throw new ExternalServiceException("Purchase Service communication failure", e);

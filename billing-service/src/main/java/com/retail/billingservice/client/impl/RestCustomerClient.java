@@ -1,6 +1,7 @@
 package com.retail.billingservice.client.impl;
 
 import com.retail.billingservice.client.CustomerClient;
+import com.retail.billingservice.dto.customer.CustomerDto;
 import com.retail.billingservice.exception.CustomerNotFoundException;
 import com.retail.billingservice.exception.CustomerServiceException;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,41 @@ public class RestCustomerClient implements CustomerClient {
         } catch (Exception e) {
             log.error("Failed to check customer existence for id {} in Customer Service", customerId, e);
             throw new CustomerServiceException("Failed to verify customer existence", e);
+        }
+    }
+
+    @Override
+    public CustomerDto getCustomer(Long customerId) {
+        log.info("Fetching customer from Customer Service: id={}...", customerId);
+        try {
+            CustomerDto customer = customerRestClient.get()
+                    .uri(String.format(GET_CUSTOMER, customerId))
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+                        log.warn("Customer Service returned 4xx error fetching customer {}. Status: {}", customerId, res.getStatusCode());
+                        throw new CustomerNotFoundException("Customer not found: " + customerId);
+                    })
+                    .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                        log.error("Customer Service returned error fetching customer {}. Status: {}", customerId, res.getStatusCode());
+                        throw new CustomerServiceException("Customer Service error: " + res.getStatusCode());
+                    })
+                    .body(CustomerDto.class);
+
+            if (customer == null) {
+                log.warn("Empty response from Customer Service for customer id: {}", customerId);
+                throw new CustomerNotFoundException("Customer not found: " + customerId);
+            }
+
+            log.info("Successfully fetched customer {} from Customer Service", customerId);
+            return customer;
+        } catch (CustomerNotFoundException e) {
+            throw e;
+        } catch (RestClientException e) {
+            log.error("REST client communication error fetching customer {} from Customer Service", customerId, e);
+            throw new CustomerServiceException("Failed to fetch customer from Customer Service", e);
+        } catch (Exception e) {
+            log.error("Unexpected failure fetching customer {} from Customer Service", customerId, e);
+            throw new CustomerServiceException("Failed to fetch customer from Customer Service", e);
         }
     }
 }

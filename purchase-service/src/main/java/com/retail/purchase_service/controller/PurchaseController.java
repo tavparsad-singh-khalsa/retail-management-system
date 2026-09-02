@@ -6,6 +6,9 @@ import com.retail.purchase_service.enums.PurchaseStatus;
 import com.retail.purchase_service.service.interfaces.PurchaseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,8 +49,8 @@ public class PurchaseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PurchaseResponse>> getAllPurchases() {
-        List<PurchaseResponse> responses = purchaseService.getAllPurchases();
+    public ResponseEntity<Page<PurchaseResponse>> getAllPurchases(@PageableDefault(size = 20) Pageable pageable) {
+        Page<PurchaseResponse> responses = purchaseService.getAllPurchases(pageable);
         return ResponseEntity.ok(responses);
     }
 

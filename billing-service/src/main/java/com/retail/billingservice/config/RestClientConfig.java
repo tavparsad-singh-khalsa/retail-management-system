@@ -12,6 +12,12 @@ import java.time.Duration;
 @Configuration
 public class RestClientConfig {
 
+    private final AuthorizationHeaderPropagationInterceptor authInterceptor;
+
+    public RestClientConfig(AuthorizationHeaderPropagationInterceptor authInterceptor) {
+        this.authInterceptor = authInterceptor;
+    }
+
     @Value("${sales-service.url:http://localhost:9094}")
     private String salesServiceUrl;
 
@@ -42,6 +48,7 @@ public class RestClientConfig {
         return builder
                 .baseUrl(salesServiceUrl)
                 .requestFactory(factory)
+                .requestInterceptor(authInterceptor)
                 .build();
     }
 
@@ -57,6 +64,7 @@ public class RestClientConfig {
         return builder
                 .baseUrl(customerServiceUrl)
                 .requestFactory(factory)
+                .requestInterceptor(authInterceptor)
                 .build();
     }
 }

@@ -29,6 +29,14 @@ public class SaleItem {
     @Column(name = "product_variant_id", nullable = false)
     private Long productVariantId;
 
+    private Long productId;
+
+    private String sku;
+
+    private String barcode;
+
+    private String productName;
+
     @Column(nullable = false)
     private Integer quantity;
 

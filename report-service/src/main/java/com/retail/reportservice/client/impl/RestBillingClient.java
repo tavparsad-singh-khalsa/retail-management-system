@@ -1,6 +1,7 @@
 package com.retail.reportservice.client.impl;
 
 import com.retail.reportservice.client.BillingClient;
+import com.retail.reportservice.dto.PageResponse;
 import com.retail.reportservice.dto.external.ExternalInvoiceDto;
 import com.retail.reportservice.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +25,11 @@ public class RestBillingClient implements BillingClient {
     public List<ExternalInvoiceDto> getAllInvoices() {
         log.info("Fetching all invoices from Billing Service...");
         try {
-            List<ExternalInvoiceDto> invoices = billingRestClient.get()
+            PageResponse<ExternalInvoiceDto> page = billingRestClient.get()
                     .uri("/api/v1/invoices")
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {});
-            return invoices != null ? invoices : Collections.emptyList();
+            return page != null ? page.getContent() : Collections.emptyList();
         } catch (RestClientException e) {
             log.error("Failed to fetch invoices from Billing Service", e);
             throw new ExternalServiceException("Billing Service communication failure", e);

@@ -22,7 +22,9 @@ public class InvoiceResponse {
     private Long id;
     private String invoiceNumber;
     private Long saleId;
+    private String saleNumber;
     private Long customerId;
+    private String customerName;
     private BigDecimal subtotal;
     private BigDecimal taxAmount;
     private BigDecimal discountAmount;

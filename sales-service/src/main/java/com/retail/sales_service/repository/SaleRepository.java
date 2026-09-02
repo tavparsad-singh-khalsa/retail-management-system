@@ -9,4 +9,8 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     Optional<Sale> findBySaleNumber(String saleNumber);
 
     boolean existsBySaleNumber(String saleNumber);
+
+    Optional<Sale> findByIdempotencyKey(String idempotencyKey);
+
+    boolean existsByIdempotencyKey(String idempotencyKey);
 }
